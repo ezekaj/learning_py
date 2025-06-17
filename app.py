@@ -3,6 +3,15 @@ import json
 import os
 from datetime import datetime
 import secrets
+import logging
+
+# Import our custom error handling and validation
+from core.error_handler import (
+    error_handler, handle_errors,
+    UserDataError, ValidationError, AuthenticationError, FileOperationError
+)
+from core.validators import validator
+from core.security import csrf_protection, rate_limiter, require_csrf_token, rate_limit
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
@@ -12,22 +21,84 @@ APP_VERSION = "2.0.0"
 APP_NAME = "Python Learning Platform"
 APP_DESCRIPTION = "Comprehensive Python learning platform with interactive lessons, challenges, and gamification"
 
+# Configure Flask logging to work with our error handler
+app.logger.addHandler(error_handler.logger.handlers[0])
+app.logger.setLevel(logging.INFO)
+
 def load_user_data():
+    """Load user data with comprehensive error handling"""
     try:
-        if os.path.exists("data/user_progress.json"):
-            with open("data/user_progress.json", 'r') as f:
-                return json.load(f)
-    except:
-        pass
-    return {}
+        file_path = "data/user_progress.json"
+        if os.path.exists(file_path):
+            with open(file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                error_handler.logger.debug(f"Successfully loaded user data: {len(data)} users")
+                return data
+        else:
+            error_handler.logger.info("User data file does not exist, returning empty data")
+            return {}
+    except json.JSONDecodeError as e:
+        error_details = error_handler.handle_error(
+            UserDataError(f"Invalid JSON in user data file: {e}"),
+            context={"file_path": "data/user_progress.json", "operation": "load"},
+            user_message="There was a problem loading user data. Using backup if available."
+        )
+        return {}
+    except PermissionError as e:
+        error_details = error_handler.handle_error(
+            FileOperationError(f"Permission denied accessing user data: {e}"),
+            context={"file_path": "data/user_progress.json", "operation": "load"}
+        )
+        return {}
+    except Exception as e:
+        error_details = error_handler.handle_error(
+            UserDataError(f"Unexpected error loading user data: {e}"),
+            context={"file_path": "data/user_progress.json", "operation": "load"}
+        )
+        return {}
 
 def save_user_data(data):
+    """Save user data with comprehensive error handling and backup"""
     try:
+        # Validate data before saving
+        if not isinstance(data, dict):
+            raise UserDataError("User data must be a dictionary")
+
+        file_path = "data/user_progress.json"
+
+        # Ensure directory exists
         os.makedirs("data", exist_ok=True)
-        with open("data/user_progress.json", 'w') as f:
-            json.dump(data, f, indent=2)
+
+        # Create backup before saving
+        if os.path.exists(file_path):
+            backup_path = f"data/user_progress_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            try:
+                with open(file_path, 'r', encoding='utf-8') as src:
+                    with open(backup_path, 'w', encoding='utf-8') as dst:
+                        dst.write(src.read())
+                error_handler.logger.debug(f"Created backup: {backup_path}")
+            except Exception as backup_error:
+                error_handler.logger.warning(f"Failed to create backup: {backup_error}")
+
+        # Save the data
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+
+        error_handler.logger.info(f"Successfully saved user data: {len(data)} users")
+        return True
+
+    except PermissionError as e:
+        error_handler.handle_error(
+            FileOperationError(f"Permission denied saving user data: {e}"),
+            context={"file_path": "data/user_progress.json", "operation": "save"}
+        )
+        return False
     except Exception as e:
-        print(f"Error saving: {e}")
+        error_handler.handle_error(
+            UserDataError(f"Failed to save user data: {e}"),
+            context={"file_path": "data/user_progress.json", "operation": "save", "data_size": len(data)}
+        )
+        return False
 
 def get_progress_stats(user_email):
     user_data = load_user_data()
@@ -437,43 +508,118 @@ def introduction():
     return render_template('introduction.html')
 
 @app.route('/register', methods=['GET', 'POST'])
+@rate_limit(requests_per_minute=5, requests_per_hour=20)  # Strict limits for registration
 def register():
+    """User registration with comprehensive validation and error handling"""
     if request.method == 'GET':
         return render_template('register.html')
-    
-    data = request.get_json()
-    if not data.get('email') or not data.get('password') or not data.get('name'):
-        return jsonify({"success": False, "error": "All fields required"}), 400
 
-    user_data = load_user_data()
-    if data['email'] in user_data:
-        return jsonify({"success": False, "error": "Email exists"}), 400
+    try:
+        # Get and validate JSON data
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                "success": False,
+                "error": "No data provided"
+            }), 400
 
-    user_profile = {
-        "name": data['name'],
-        "email": data['email'],
-        "password": data['password'],
-        "experience_level": data.get('experience_level', 'complete_beginner'),
-        "learning_goals": data.get('learning_goals', []),
-        "created_at": datetime.now().isoformat(),
-        "lessons_completed": 0,
-        "points": 0,
-        "level": 1,
-        "streak": 0,
-        "challenges_completed": 0,
-        "quizzes_completed": 0,
-        "quizzes_taken": 0,
-        "playground_uses": 0,
-        "average_quiz_score": 0,
-        "days_since_start": 0,
-        "achievements": []
-    }
+        # Sanitize input data
+        sanitized_data = {}
+        for key, value in data.items():
+            if isinstance(value, str):
+                sanitized_data[key] = validator.sanitize_html(value.strip())
+            else:
+                sanitized_data[key] = value
 
-    user_data[data['email']] = user_profile
-    save_user_data(user_data)
-    session['user'] = data['email']
-    session['first_time'] = True
-    return jsonify({"success": True, "redirect": url_for('welcome_user')})
+        # Comprehensive validation
+        is_valid, validation_errors = validator.validate_registration_data(sanitized_data)
+
+        if not is_valid:
+            error_handler.logger.warning(f"Registration validation failed: {validation_errors}")
+            return jsonify({
+                "success": False,
+                "error": "Validation failed",
+                "details": validation_errors
+            }), 400
+
+        # Check if user already exists
+        user_data = load_user_data()
+        email = sanitized_data['email'].lower()
+
+        if email in user_data:
+            error_handler.logger.info(f"Registration attempt with existing email: {email}")
+            return jsonify({
+                "success": False,
+                "error": "An account with this email already exists"
+            }), 400
+
+        # Create user profile with standardized structure
+        user_profile = {
+            "name": sanitized_data['name'],
+            "email": email,
+            "password": sanitized_data['password'],  # In production, this should be hashed
+            "experience_level": sanitized_data.get('experience_level', 'complete_beginner'),
+            "learning_goals": sanitized_data.get('learning_goals', []),
+            "created_at": datetime.now().isoformat(),
+            "last_activity": datetime.now().isoformat(),
+            "last_login": datetime.now().isoformat(),
+            "lessons_completed": 0,
+            "challenges_completed": 0,
+            "quizzes_completed": 0,
+            "quizzes_taken": 0,
+            "projects_completed": 0,
+            "playground_uses": 0,
+            "points": 0,
+            "level": 1,
+            "streak": 0,
+            "achievements": [],
+            "average_quiz_score": 0.0,
+            "total_study_time": 0,
+            "days_since_start": 0,
+            "completed_lesson_ids": [],
+            "completed_challenge_ids": [],
+            "completed_quiz_ids": [],
+            "completed_project_ids": [],
+            "notifications_enabled": True,
+            "theme": "default",
+            "language": "en"
+        }
+
+        # Save user data
+        user_data[email] = user_profile
+        save_success = save_user_data(user_data)
+
+        if not save_success:
+            return jsonify({
+                "success": False,
+                "error": "Failed to create account. Please try again."
+            }), 500
+
+        # Set session
+        session['user'] = email
+        session['first_time'] = True
+
+        error_handler.logger.info(f"New user registered successfully: {email}")
+
+        return jsonify({
+            "success": True,
+            "redirect": url_for('welcome_user'),
+            "message": "Account created successfully!"
+        })
+
+    except ValidationError as e:
+        error_handler.handle_error(e, context={"route": "register", "data": str(data)[:200]})
+        return jsonify({
+            "success": False,
+            "error": "Invalid input data"
+        }), 400
+
+    except Exception as e:
+        error_handler.handle_error(e, context={"route": "register"})
+        return jsonify({
+            "success": False,
+            "error": "An unexpected error occurred. Please try again."
+        }), 500
 
 @app.route('/welcome_user')
 def welcome_user():
@@ -486,22 +632,91 @@ def welcome_user():
     return render_template('welcome_user.html', user_profile=user_profile)
 
 @app.route('/login', methods=['GET', 'POST'])
+@rate_limit(requests_per_minute=10, requests_per_hour=50)  # Moderate limits for login
 def login():
+    """User login with comprehensive validation and error handling"""
     if request.method == 'GET':
         return render_template('login.html')
-    
-    data = request.get_json()
-    if not data.get('email') or not data.get('password'):
-        return jsonify({"success": False, "error": "Email and password required"}), 400
-    
-    user_data = load_user_data()
-    user = user_data.get(data['email'])
-    
-    if not user or user.get('password') != data['password']:
-        return jsonify({"success": False, "error": "Invalid credentials"}), 401
-    
-    session['user'] = data['email']
-    return jsonify({"success": True, "redirect": url_for('dashboard')})
+
+    try:
+        # Get and validate JSON data
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                "success": False,
+                "error": "No login data provided"
+            }), 400
+
+        # Validate required fields
+        email = data.get('email', '').strip().lower()
+        password = data.get('password', '')
+
+        if not email or not password:
+            error_handler.logger.warning("Login attempt with missing credentials")
+            return jsonify({
+                "success": False,
+                "error": "Email and password are required"
+            }), 400
+
+        # Validate email format
+        email_valid, email_error = validator.validate_email(email)
+        if not email_valid:
+            error_handler.logger.warning(f"Login attempt with invalid email format: {email}")
+            return jsonify({
+                "success": False,
+                "error": "Invalid email format"
+            }), 400
+
+        # Load user data and check credentials
+        user_data = load_user_data()
+        user = user_data.get(email)
+
+        if not user:
+            error_handler.logger.warning(f"Login attempt with non-existent email: {email}")
+            return jsonify({
+                "success": False,
+                "error": "Invalid email or password"
+            }), 401
+
+        # Verify password (in production, use proper password hashing)
+        if user.get('password') != password:
+            error_handler.logger.warning(f"Login attempt with incorrect password for: {email}")
+            return jsonify({
+                "success": False,
+                "error": "Invalid email or password"
+            }), 401
+
+        # Update last login time
+        user['last_login'] = datetime.now().isoformat()
+        user['last_activity'] = datetime.now().isoformat()
+        user_data[email] = user
+        save_user_data(user_data)
+
+        # Set session
+        session['user'] = email
+        session.permanent = True  # Make session permanent
+
+        error_handler.logger.info(f"User logged in successfully: {email}")
+
+        return jsonify({
+            "success": True,
+            "redirect": url_for('dashboard'),
+            "message": "Login successful!"
+        })
+
+    except AuthenticationError as e:
+        error_handler.handle_error(e, context={"route": "login", "email": email})
+        return jsonify({
+            "success": False,
+            "error": "Authentication failed"
+        }), 401
+
+    except Exception as e:
+        error_handler.handle_error(e, context={"route": "login"})
+        return jsonify({
+            "success": False,
+            "error": "An unexpected error occurred. Please try again."
+        }), 500
 
 @app.route('/dashboard')
 def dashboard():
@@ -1148,81 +1363,160 @@ def quiz_detail(quiz_id):
                          is_completed=is_completed)
 
 @app.route('/api/submit_quiz', methods=['POST'])
+@rate_limit(requests_per_minute=30, requests_per_hour=200)  # Allow frequent quiz submissions
 def submit_quiz():
-    if 'user' not in session:
-        return jsonify({"success": False, "error": "Not logged in"}), 401
+    """Submit quiz answers with comprehensive validation and error handling"""
+    try:
+        # Check authentication
+        if 'user' not in session:
+            error_handler.logger.warning("Quiz submission attempt without authentication")
+            return jsonify({
+                "success": False,
+                "error": "Please log in to submit quiz answers"
+            }), 401
 
-    data = request.get_json()
-    quiz_id = data.get('quiz_id')
-    user_answers = data.get('answers', {})
+        # Get and validate request data
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                "success": False,
+                "error": "No quiz data provided"
+            }), 400
 
-    # Get quiz data
-    quizzes_data = get_comprehensive_quizzes_data()
-    quiz = next((q for q in quizzes_data if q['id'] == quiz_id), None)
+        quiz_id = data.get('quiz_id')
+        user_answers = data.get('answers', {})
 
-    if not quiz:
-        return jsonify({"success": False, "error": "Quiz not found"}), 404
+        # Validate quiz ID
+        if not quiz_id:
+            return jsonify({
+                "success": False,
+                "error": "Quiz ID is required"
+            }), 400
 
-    # Calculate score
-    correct_answers = 0
-    total_questions = len(quiz.get('questions_data', []))
+        # Validate answers format
+        answers_valid, answers_error = validator.validate_quiz_answers(user_answers)
+        if not answers_valid:
+            error_handler.logger.warning(f"Invalid quiz answers format: {answers_error}")
+            return jsonify({
+                "success": False,
+                "error": f"Invalid answers format: {answers_error}"
+            }), 400
 
-    if total_questions == 0:
-        total_questions = quiz.get('questions', 5)  # Fallback for quizzes without detailed questions
+        # Get quiz data
+        try:
+            quizzes_data = get_comprehensive_quizzes_data()
+            quiz = next((q for q in quizzes_data if q['id'] == quiz_id), None)
+        except Exception as e:
+            error_handler.handle_error(e, context={"operation": "load_quiz_data", "quiz_id": quiz_id})
+            return jsonify({
+                "success": False,
+                "error": "Failed to load quiz data"
+            }), 500
 
-    for question in quiz.get('questions_data', []):
-        question_id = str(question['id'])
-        if question_id in user_answers:
-            user_answer = user_answers[question_id]
-            correct_answer = question['correct_answer']
+        if not quiz:
+            error_handler.logger.warning(f"Quiz not found: {quiz_id}")
+            return jsonify({
+                "success": False,
+                "error": "Quiz not found"
+            }), 404
 
-            # Handle different answer types
-            if question['type'] == 'true_false':
-                if (user_answer == 'true' and correct_answer is True) or (user_answer == 'false' and correct_answer is False):
-                    correct_answers += 1
-            elif question['type'] == 'code_completion':
-                if str(user_answer).strip().lower() == str(correct_answer).strip().lower():
-                    correct_answers += 1
-            else:  # multiple_choice, debugging
-                if int(user_answer) == correct_answer:
-                    correct_answers += 1
+        # Calculate score with error handling
+        correct_answers = 0
+        total_questions = len(quiz.get('questions_data', []))
 
-    # Calculate percentage and points
-    percentage = (correct_answers / total_questions) * 100 if total_questions > 0 else 0
-    points_earned = int((percentage / 100) * quiz.get('points', 25))
+        if total_questions == 0:
+            total_questions = quiz.get('questions', 5)  # Fallback for quizzes without detailed questions
 
-    # Update user progress
-    user_data = load_user_data()
-    user = user_data.get(session['user'], {})
+        # Process answers with validation
+        for question in quiz.get('questions_data', []):
+            try:
+                question_id = str(question['id'])
+                if question_id in user_answers:
+                    user_answer = user_answers[question_id]
+                    correct_answer = question['correct_answer']
 
-    # Update quiz completion
-    completed_quizzes = user.get('completed_quizzes', [])
-    if quiz_id not in completed_quizzes:
-        completed_quizzes.append(quiz_id)
-        user['completed_quizzes'] = completed_quizzes
+                    # Handle different answer types
+                    if question['type'] == 'true_false':
+                        if (user_answer == 'true' and correct_answer is True) or (user_answer == 'false' and correct_answer is False):
+                            correct_answers += 1
+                    elif question['type'] == 'code_completion':
+                        if str(user_answer).strip().lower() == str(correct_answer).strip().lower():
+                            correct_answers += 1
+                    else:  # multiple_choice, debugging
+                        if int(user_answer) == correct_answer:
+                            correct_answers += 1
+            except (ValueError, KeyError, TypeError) as e:
+                error_handler.logger.warning(f"Error processing question {question_id}: {e}")
+                continue
 
-    # Update points and stats
-    user['points'] = user.get('points', 0) + points_earned
-    user['quizzes_completed'] = len(completed_quizzes)
-    user['quizzes_taken'] = user.get('quizzes_taken', 0) + 1
+        # Calculate percentage and points
+        percentage = (correct_answers / total_questions) * 100 if total_questions > 0 else 0
+        points_earned = int((percentage / 100) * quiz.get('points', 25))
 
-    # Update average quiz score
-    total_quiz_score = user.get('total_quiz_score', 0) + percentage
-    user['total_quiz_score'] = total_quiz_score
-    user['average_quiz_score'] = total_quiz_score / user['quizzes_taken']
+        # Update user progress
+        user_data = load_user_data()
+        user = user_data.get(session['user'], {})
 
-    # Save updated user data
-    user_data[session['user']] = user
-    save_user_data(user_data)
+        if not user:
+            return jsonify({
+                "success": False,
+                "error": "User data not found"
+            }), 404
 
-    return jsonify({
-        "success": True,
-        "score": percentage,
-        "points_earned": points_earned,
-        "correct_answers": correct_answers,
-        "total_questions": total_questions,
-        "message": f"Quiz completed! You scored {percentage:.1f}% and earned {points_earned} points."
-    })
+        # Update quiz completion
+        completed_quizzes = user.get('completed_quizzes', [])
+        if quiz_id not in completed_quizzes:
+            completed_quizzes.append(quiz_id)
+            user['completed_quizzes'] = completed_quizzes
+
+        # Update points and stats
+        user['points'] = user.get('points', 0) + points_earned
+        user['quizzes_completed'] = len(completed_quizzes)
+        user['quizzes_taken'] = user.get('quizzes_taken', 0) + 1
+
+        # Update average quiz score
+        total_quiz_score = user.get('total_quiz_score', 0) + percentage
+        user['total_quiz_score'] = total_quiz_score
+        user['average_quiz_score'] = total_quiz_score / user['quizzes_taken']
+
+        # Update last activity
+        user['last_activity'] = datetime.now().isoformat()
+
+        # Save updated user data
+        user_data[session['user']] = user
+        save_success = save_user_data(user_data)
+
+        if not save_success:
+            error_handler.logger.error(f"Failed to save quiz results for user: {session['user']}")
+            return jsonify({
+                "success": False,
+                "error": "Failed to save quiz results"
+            }), 500
+
+        error_handler.logger.info(f"Quiz completed: {session['user']} scored {percentage:.1f}% on {quiz_id}")
+
+        return jsonify({
+            "success": True,
+            "score": percentage,
+            "points_earned": points_earned,
+            "correct_answers": correct_answers,
+            "total_questions": total_questions,
+            "message": f"Quiz completed! You scored {percentage:.1f}% and earned {points_earned} points."
+        })
+
+    except ValidationError as e:
+        error_handler.handle_error(e, context={"route": "submit_quiz", "quiz_id": quiz_id})
+        return jsonify({
+            "success": False,
+            "error": "Invalid quiz submission data"
+        }), 400
+
+    except Exception as e:
+        error_handler.handle_error(e, context={"route": "submit_quiz", "quiz_id": quiz_id, "user": session.get('user')})
+        return jsonify({
+            "success": False,
+            "error": "An unexpected error occurred while processing your quiz"
+        }), 500
 
 @app.route('/playground')
 def playground():
@@ -1304,7 +1598,50 @@ def dashboard_stats():
         }
     })
 
+# Security endpoints
+@app.route('/api/csrf-token')
+@rate_limit(requests_per_minute=60, requests_per_hour=500)
+def get_csrf_token():
+    """Get CSRF token for the current session"""
+    try:
+        token = csrf_protection.get_token_for_session()
+        return jsonify({
+            "success": True,
+            "csrf_token": token
+        })
+    except Exception as e:
+        error_handler.handle_error(e, context={"route": "csrf_token"})
+        return jsonify({
+            "success": False,
+            "error": "Failed to generate CSRF token"
+        }), 500
+
+@app.route('/api/health')
+@rate_limit(requests_per_minute=30, requests_per_hour=200)
+def health_check():
+    """Health check endpoint with error statistics"""
+    try:
+        stats = error_handler.get_error_statistics()
+        return jsonify({
+            "success": True,
+            "status": "healthy",
+            "version": APP_VERSION,
+            "error_stats": {
+                "total_errors": stats["error_stats"]["total_errors"],
+                "system_health": stats["system_health"]["status"]
+            },
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "status": "unhealthy",
+            "error": str(e)
+        }), 500
+
 if __name__ == '__main__':
     print("🚀 Starting Python Learning Platform...")
     print("📍 Visit: http://localhost:5000")
+    print(f"🔒 Security features enabled: CSRF protection, Rate limiting")
+    print(f"📊 Error handling and logging active")
     app.run(debug=True, host='0.0.0.0', port=5000)

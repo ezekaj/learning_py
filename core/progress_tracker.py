@@ -12,6 +12,11 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 import math
 
+# Import error handling
+from .error_handler import (
+    error_handler, handle_errors, UserDataError, FileOperationError
+)
+
 class ProgressTracker:
     """Track user progress, achievements, and learning analytics"""
     
@@ -307,20 +312,56 @@ class ProgressTracker:
         return leaderboard[:limit]
     
     def load_user_data(self) -> Dict:
-        """Load user data from file"""
+        """Load user data from file with comprehensive error handling"""
         try:
             if os.path.exists(self.user_data_file):
-                with open(self.user_data_file, 'r') as f:
-                    return json.load(f)
+                with open(self.user_data_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    return data
             return {}
-        except Exception:
+        except json.JSONDecodeError as e:
+            error_handler.handle_error(
+                UserDataError(f"Invalid JSON in user data file: {e}"),
+                context={"file_path": self.user_data_file, "operation": "load"}
+            )
             return {}
-    
-    def save_user_data(self, user_data: Dict):
-        """Save user data to file"""
-        try:
-            os.makedirs(os.path.dirname(self.user_data_file), exist_ok=True)
-            with open(self.user_data_file, 'w') as f:
-                json.dump(user_data, f, indent=2)
+        except PermissionError as e:
+            error_handler.handle_error(
+                FileOperationError(f"Permission denied accessing user data: {e}"),
+                context={"file_path": self.user_data_file, "operation": "load"}
+            )
+            return {}
         except Exception as e:
-            print(f"Error saving user data: {e}")
+            error_handler.handle_error(
+                UserDataError(f"Unexpected error loading user data: {e}"),
+                context={"file_path": self.user_data_file, "operation": "load"}
+            )
+            return {}
+
+    def save_user_data(self, user_data: Dict) -> bool:
+        """Save user data to file with comprehensive error handling"""
+        try:
+            if not isinstance(user_data, dict):
+                raise UserDataError("User data must be a dictionary")
+
+            # Ensure directory exists
+            os.makedirs(os.path.dirname(self.user_data_file), exist_ok=True)
+
+            # Save the data
+            with open(self.user_data_file, 'w', encoding='utf-8') as f:
+                json.dump(user_data, f, indent=2, ensure_ascii=False)
+
+            return True
+
+        except PermissionError as e:
+            error_handler.handle_error(
+                FileOperationError(f"Permission denied saving user data: {e}"),
+                context={"file_path": self.user_data_file, "operation": "save"}
+            )
+            return False
+        except Exception as e:
+            error_handler.handle_error(
+                UserDataError(f"Failed to save user data: {e}"),
+                context={"file_path": self.user_data_file, "operation": "save", "data_size": len(user_data)}
+            )
+            return False
