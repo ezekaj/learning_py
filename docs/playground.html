@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playground Demo - Python Learning Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <a href="index.html" class="text-xl font-bold text-gray-800">🐍 Python Learning Platform</a>
+                <div class="space-x-4">
+                    <a href="lessons.html" class="text-blue-600 hover:text-blue-800">Lessons</a>
+                    <a href="playground.html" class="text-blue-600 hover:text-blue-800">Playground</a>
+                    <a href="documentation.html" class="text-blue-600 hover:text-blue-800">Docs</a>
+                    <a href="https://github.com/ezekaj/learning_py" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        GitHub
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-6 py-8">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">🧪 Python Playground Demo</h1>
+            <p class="text-xl text-gray-600">Experience our interactive coding environment</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-gray-800">Interactive Code Editor</h2>
+                <button onclick="runCode()" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+                    <i class="fas fa-play mr-2"></i>Run Code
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Python Code</h3>
+                    <textarea id="code-editor" class="w-full h-64 p-4 border rounded-lg font-mono text-sm">
+# Welcome to the Python Learning Platform!
+# Try editing this code and click "Run Code"
+
+def greet(name):
+    return f"Hello, {name}! Welcome to Python learning!"
+
+def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+# Test the functions
+user_name = "Python Learner"
+greeting = greet(user_name)
+print(greeting)
+
+print("\nFibonacci sequence:")
+for i in range(8):
+    print(f"F({i}) = {fibonacci(i)}")
+
+# Try some list comprehensions
+squares = [x**2 for x in range(1, 6)]
+print(f"\nSquares: {squares}")
+
+# Dictionary example
+student = {
+    "name": "Alice",
+    "age": 20,
+    "courses": ["Python", "JavaScript", "Data Science"]
+}
+
+print(f"\nStudent: {student['name']}")
+print("Courses:")
+for course in student['courses']:
+    print(f"  - {course}")
+                    </textarea>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Output</h3>
+                    <div id="output" class="w-full h-64 p-4 bg-gray-900 text-green-400 rounded-lg font-mono text-sm overflow-auto">
+                        Click "Run Code" to see the output here...
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                <h4 class="font-semibold text-blue-800 mb-2">💡 Try These Features:</h4>
+                <ul class="text-blue-700 space-y-1">
+                    <li>• Modify the code and run it again</li>
+                    <li>• Try adding your own functions</li>
+                    <li>• Experiment with different Python concepts</li>
+                    <li>• The full platform includes real-time execution and error handling</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <a href="https://github.com/ezekaj/learning_py" class="bg-blue-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-blue-700 transition-colors">
+                <i class="fab fa-github mr-2"></i>Get the Full Platform
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Initialize CodeMirror
+        const editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+            mode: 'python',
+            theme: 'default',
+            lineNumbers: true,
+            indentUnit: 4,
+            lineWrapping: true
+        });
+
+        function runCode() {
+            const code = editor.getValue();
+            const output = document.getElementById('output');
+
+            // Simulate code execution with demo output
+            output.innerHTML = `<span class="text-yellow-400">>>> Running Python code...</span>\n\n` +
+                `Hello, Python Learner! Welcome to Python learning!\n\n` +
+                `Fibonacci sequence:\n` +
+                `F(0) = 0\n` +
+                `F(1) = 1\n` +
+                `F(2) = 1\n` +
+                `F(3) = 2\n` +
+                `F(4) = 3\n` +
+                `F(5) = 5\n` +
+                `F(6) = 8\n` +
+                `F(7) = 13\n\n` +
+                `Squares: [1, 4, 9, 16, 25]\n\n` +
+                `Student: Alice\n` +
+                `Courses:\n` +
+                `  - Python\n` +
+                `  - JavaScript\n` +
+                `  - Data Science\n\n` +
+                `<span class="text-green-400">>>> Code executed successfully!</span>\n` +
+                `<span class="text-gray-400">Note: This is a demo. The full platform provides real Python execution.</span>`;
+        }
+    </script>
+</body>
+</html>
