@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Join Python Learning Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .form-step { display: none; }
+        .form-step.active { display: block; }
+        .progress-bar { transition: width 0.3s ease; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <!-- Header -->
+            <div class="text-center">
+                <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+                    🚀 Join the Revolution
+                </h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Start your Python learning journey with AI-powered education
+                </p>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div id="progressBar" class="progress-bar bg-blue-600 h-2 rounded-full" style="width: 33%"></div>
+            </div>
+            <div class="text-center text-sm text-gray-600">
+                Step <span id="currentStep">1</span> of 3
+            </div>
+
+            <!-- Registration Form -->
+            <form id="registrationForm" class="mt-8 space-y-6">
+                <!-- Step 1: Basic Info -->
+                <div id="step1" class="form-step active">
+                    <div class="rounded-md shadow-sm space-y-4">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                            <input id="name" name="name" type="text" required 
+                                   class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                                   placeholder="Enter your full name">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                            <input id="email" name="email" type="email" required 
+                                   class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                                   placeholder="Enter your email">
+                        </div>
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                            <input id="password" name="password" type="password" required 
+                                   class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                                   placeholder="Create a strong password">
+                        </div>
+                    </div>
+                    <button type="button" onclick="nextStep()" 
+                            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Continue <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+
+                <!-- Step 2: Experience Level -->
+                <div id="step2" class="form-step">
+                    <div class="text-center mb-6">
+                        <h3 class="text-lg font-medium text-gray-900">What's your Python experience?</h3>
+                        <p class="text-sm text-gray-600">This helps us personalize your learning path</p>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="block">
+                            <input type="radio" name="experience_level" value="complete_beginner" class="sr-only peer" checked>
+                            <div class="p-4 border-2 border-gray-200 rounded-lg cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <div class="text-2xl mr-3">🌱</div>
+                                    <div>
+                                        <div class="font-medium">Complete Beginner</div>
+                                        <div class="text-sm text-gray-600">I've never programmed before</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="block">
+                            <input type="radio" name="experience_level" value="some_programming" class="sr-only peer">
+                            <div class="p-4 border-2 border-gray-200 rounded-lg cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <div class="text-2xl mr-3">💻</div>
+                                    <div>
+                                        <div class="font-medium">Some Programming</div>
+                                        <div class="text-sm text-gray-600">I know other languages but not Python</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="block">
+                            <input type="radio" name="experience_level" value="basic_python" class="sr-only peer">
+                            <div class="p-4 border-2 border-gray-200 rounded-lg cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <div class="text-2xl mr-3">🐍</div>
+                                    <div>
+                                        <div class="font-medium">Basic Python</div>
+                                        <div class="text-sm text-gray-600">I know Python basics but want to improve</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="block">
+                            <input type="radio" name="experience_level" value="intermediate_python" class="sr-only peer">
+                            <div class="p-4 border-2 border-gray-200 rounded-lg cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <div class="text-2xl mr-3">🚀</div>
+                                    <div>
+                                        <div class="font-medium">Intermediate Python</div>
+                                        <div class="text-sm text-gray-600">I'm comfortable with Python and want advanced topics</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div class="flex space-x-3 mt-6">
+                        <button type="button" onclick="prevStep()" 
+                                class="flex-1 py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <i class="fas fa-arrow-left mr-2"></i>Back
+                        </button>
+                        <button type="button" onclick="nextStep()" 
+                                class="flex-1 py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Continue <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Learning Goals -->
+                <div id="step3" class="form-step">
+                    <div class="text-center mb-6">
+                        <h3 class="text-lg font-medium text-gray-900">What do you want to achieve?</h3>
+                        <p class="text-sm text-gray-600">Select all that apply (optional)</p>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="block">
+                            <input type="checkbox" name="learning_goals" value="web_development" class="sr-only peer">
+                            <div class="p-3 border-2 border-gray-200 rounded-lg cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">🌐</div>
+                                    <div class="font-medium">Web Development</div>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="block">
+                            <input type="checkbox" name="learning_goals" value="data_science" class="sr-only peer">
+                            <div class="p-3 border-2 border-gray-200 rounded-lg cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">📊</div>
+                                    <div class="font-medium">Data Science & Analytics</div>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="block">
+                            <input type="checkbox" name="learning_goals" value="automation" class="sr-only peer">
+                            <div class="p-3 border-2 border-gray-200 rounded-lg cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">🤖</div>
+                                    <div class="font-medium">Automation & Scripting</div>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="block">
+                            <input type="checkbox" name="learning_goals" value="ai_ml" class="sr-only peer">
+                            <div class="p-3 border-2 border-gray-200 rounded-lg cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">🧠</div>
+                                    <div class="font-medium">AI & Machine Learning</div>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="block">
+                            <input type="checkbox" name="learning_goals" value="career_change" class="sr-only peer">
+                            <div class="p-3 border-2 border-gray-200 rounded-lg cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <div class="text-xl mr-3">💼</div>
+                                    <div class="font-medium">Career Change</div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div class="flex space-x-3 mt-6">
+                        <button type="button" onclick="prevStep()" 
+                                class="flex-1 py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <i class="fas fa-arrow-left mr-2"></i>Back
+                        </button>
+                        <button type="submit" id="submitBtn"
+                                class="flex-1 py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                            <i class="fas fa-rocket mr-2"></i>Start Learning!
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Login Link -->
+            <div class="text-center">
+                <p class="text-sm text-gray-600">
+                    Already have an account? 
+                    <a href="/login" class="font-medium text-blue-600 hover:text-blue-500">
+                        Sign in here
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStepNum = 1;
+        const totalSteps = 3;
+
+        function nextStep() {
+            if (currentStepNum < totalSteps) {
+                // Validate current step
+                if (currentStepNum === 1) {
+                    const name = document.getElementById('name').value;
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+                    
+                    if (!name || !email || !password) {
+                        alert('Please fill in all fields');
+                        return;
+                    }
+                    
+                    if (password.length < 6) {
+                        alert('Password must be at least 6 characters');
+                        return;
+                    }
+                }
+                
+                document.getElementById(`step${currentStepNum}`).classList.remove('active');
+                currentStepNum++;
+                document.getElementById(`step${currentStepNum}`).classList.add('active');
+                
+                updateProgress();
+            }
+        }
+
+        function prevStep() {
+            if (currentStepNum > 1) {
+                document.getElementById(`step${currentStepNum}`).classList.remove('active');
+                currentStepNum--;
+                document.getElementById(`step${currentStepNum}`).classList.add('active');
+                
+                updateProgress();
+            }
+        }
+
+        function updateProgress() {
+            const progress = (currentStepNum / totalSteps) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('currentStep').textContent = currentStepNum;
+        }
+
+        document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating Account...';
+            
+            const formData = new FormData(this);
+            const data = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                password: formData.get('password'),
+                experience_level: formData.get('experience_level'),
+                learning_goals: formData.getAll('learning_goals')
+            };
+            
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    window.location.href = result.redirect;
+                } else {
+                    alert(result.error || 'Registration failed');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-rocket mr-2"></i>Start Learning!';
+                }
+            } catch (error) {
+                alert('Network error. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-rocket mr-2"></i>Start Learning!';
+            }
+        });
+    </script>
+</body>
+</html>

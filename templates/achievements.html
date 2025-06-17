@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}Achievements - Python Learning Program{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8 animate-fade-in">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
+            🏆 Achievements
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-1">
+            Unlock achievements as you progress through your Python journey
+        </p>
+    </div>
+    
+    <!-- Achievement Stats -->
+    <div class="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl p-6 text-white mb-8 animate-slide-up">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-bold mb-2">Achievement Progress</h2>
+                <p class="opacity-90">{{ user_achievements|length }} of {{ all_achievements|length }} achievements unlocked</p>
+            </div>
+            <div class="text-right">
+                <div class="text-3xl font-bold">{{ "%.0f"|format((user_achievements|length / all_achievements|length * 100) if all_achievements else 0) }}%</div>
+                <div class="text-sm opacity-80">Complete</div>
+            </div>
+        </div>
+        <div class="mt-4">
+            <div class="bg-white bg-opacity-20 rounded-full h-3">
+                <div class="bg-white rounded-full h-3 transition-all duration-1000" 
+                     style="width: {{ (user_achievements|length / all_achievements|length * 100) if all_achievements else 0 }}%"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Achievements Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for achievement in all_achievements %}
+        {% set is_unlocked = achievement.id in user_achievements %}
+        
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover-lift animate-slide-up group
+                    {% if is_unlocked %}border-2 border-yellow-400{% endif %}" 
+             style="animation-delay: {{ loop.index0 * 0.1 }}s">
+            
+            <!-- Achievement Header -->
+            <div class="p-6 {% if is_unlocked %}bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900 dark:to-orange-900{% endif %}">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center text-2xl mr-4
+                                    {% if is_unlocked %}bg-yellow-400 text-white shadow-lg{% else %}bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500{% endif %}">
+                            {{ achievement.icon }}
+                        </div>
+                        
+                        {% if is_unlocked %}
+                        <div class="text-yellow-500">
+                            <i class="fas fa-check-circle text-xl"></i>
+                        </div>
+                        {% else %}
+                        <div class="text-gray-400 dark:text-gray-500">
+                            <i class="fas fa-lock text-xl"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="text-right">
+                        <div class="text-sm font-medium {% if is_unlocked %}text-yellow-600 dark:text-yellow-400{% else %}text-gray-500 dark:text-gray-400{% endif %}">
+                            +{{ achievement.points }} pts
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="text-lg font-bold {% if is_unlocked %}text-gray-900 dark:text-white{% else %}text-gray-500 dark:text-gray-400{% endif %} mb-2">
+                    {{ achievement.name }}
+                </h3>
+                
+                <p class="text-sm {% if is_unlocked %}text-gray-700 dark:text-gray-300{% else %}text-gray-500 dark:text-gray-400{% endif %} mb-4">
+                    {{ achievement.description }}
+                </p>
+                
+                <!-- Achievement Status -->
+                <div class="flex items-center justify-between">
+                    {% if is_unlocked %}
+                    <span class="px-3 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs font-medium rounded-full">
+                        ✅ Unlocked
+                    </span>
+                    {% else %}
+                    <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs font-medium rounded-full">
+                        🔒 Locked
+                    </span>
+                    {% endif %}
+                    
+                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                        {% if achievement.id == 'first_lesson' %}
+                        Complete 1 lesson
+                        {% elif achievement.id == 'quiz_master' %}
+                        Score 100% on a quiz
+                        {% elif achievement.id == 'challenge_solver' %}
+                        Complete 1 challenge
+                        {% elif achievement.id == 'week_streak' %}
+                        7-day learning streak
+                        {% elif achievement.id == 'python_novice' %}
+                        Complete 5 lessons
+                        {% else %}
+                        Special achievement
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            {% if is_unlocked %}
+            <!-- Celebration Effect -->
+            <div class="px-6 pb-4">
+                <div class="text-center text-yellow-600 dark:text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        
+        <!-- Coming Soon Achievement -->
+        <div class="bg-gray-50 dark:bg-gray-700 rounded-xl shadow-lg overflow-hidden border-2 border-dashed border-gray-300 dark:border-gray-600 animate-slide-up">
+            <div class="p-6 text-center">
+                <div class="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4">
+                    ❓
+                </div>
+                <h3 class="text-lg font-bold text-gray-700 dark:text-gray-300 mb-2">
+                    More Coming Soon!
+                </h3>
+                <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">
+                    New achievements are being added regularly.
+                </p>
+                <div class="text-xs text-gray-400 dark:text-gray-500">
+                    Keep learning to unlock them all!
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Achievement Categories -->
+    <div class="mt-12 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 animate-slide-up">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+            🎯 Achievement Categories
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <!-- Learning Milestones -->
+            <div class="text-center">
+                <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span class="text-2xl">📚</span>
+                </div>
+                <h3 class="font-bold text-gray-900 dark:text-white mb-2">Learning Milestones</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Complete lessons and reach learning goals
+                </p>
+                <div class="mt-2 text-xs text-blue-600 dark:text-blue-400 font-medium">
+                    2 achievements
+                </div>
+            </div>
+            
+            <!-- Quiz Master -->
+            <div class="text-center">
+                <div class="w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span class="text-2xl">🧠</span>
+                </div>
+                <h3 class="font-bold text-gray-900 dark:text-white mb-2">Quiz Master</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Excel in quizzes and knowledge tests
+                </p>
+                <div class="mt-2 text-xs text-purple-600 dark:text-purple-400 font-medium">
+                    1 achievement
+                </div>
+            </div>
+            
+            <!-- Challenge Solver -->
+            <div class="text-center">
+                <div class="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span class="text-2xl">⚔️</span>
+                </div>
+                <h3 class="font-bold text-gray-900 dark:text-white mb-2">Challenge Solver</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Solve coding challenges and problems
+                </p>
+                <div class="mt-2 text-xs text-green-600 dark:text-green-400 font-medium">
+                    1 achievement
+                </div>
+            </div>
+            
+            <!-- Consistency -->
+            <div class="text-center">
+                <div class="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span class="text-2xl">🔥</span>
+                </div>
+                <h3 class="font-bold text-gray-900 dark:text-white mb-2">Consistency</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Maintain learning streaks and habits
+                </p>
+                <div class="mt-2 text-xs text-red-600 dark:text-red-400 font-medium">
+                    1 achievement
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tips Section -->
+    <div class="mt-8 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-6 animate-slide-up">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+            💡 Achievement Tips
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div class="flex items-start">
+                <i class="fas fa-target text-blue-500 mr-2 mt-1"></i>
+                <span class="text-gray-700 dark:text-gray-300">Focus on completing lessons to unlock learning milestones</span>
+            </div>
+            <div class="flex items-start">
+                <i class="fas fa-brain text-purple-500 mr-2 mt-1"></i>
+                <span class="text-gray-700 dark:text-gray-300">Take quizzes seriously to earn the Quiz Master achievement</span>
+            </div>
+            <div class="flex items-start">
+                <i class="fas fa-code text-green-500 mr-2 mt-1"></i>
+                <span class="text-gray-700 dark:text-gray-300">Practice coding challenges to become a Challenge Solver</span>
+            </div>
+            <div class="flex items-start">
+                <i class="fas fa-calendar text-red-500 mr-2 mt-1"></i>
+                <span class="text-gray-700 dark:text-gray-300">Learn consistently every day to build your streak</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate progress bar
+    const progressBar = document.querySelector('[style*="width:"]');
+    if (progressBar) {
+        const width = progressBar.style.width;
+        progressBar.style.width = '0%';
+        setTimeout(() => {
+            progressBar.style.width = width;
+        }, 500);
+    }
+    
+    // Add hover effects to achievement cards
+    const achievementCards = document.querySelectorAll('.hover-lift');
+    achievementCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+    
+    // Add celebration effect for unlocked achievements
+    const unlockedAchievements = document.querySelectorAll('.border-yellow-400');
+    unlockedAchievements.forEach(achievement => {
+        achievement.addEventListener('mouseenter', function() {
+            const stars = this.querySelectorAll('.fa-star');
+            stars.forEach((star, index) => {
+                setTimeout(() => {
+                    star.style.transform = 'scale(1.2)';
+                    setTimeout(() => {
+                        star.style.transform = 'scale(1)';
+                    }, 200);
+                }, index * 100);
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

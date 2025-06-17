@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+
+{% block title %}Setup Your Profile - Python Learning Program{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <!-- Header -->
+        <div class="text-center animate-fade-in">
+            <div class="text-6xl mb-4">🎉</div>
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                Welcome to Python Learning!
+            </h2>
+            <p class="text-gray-600 dark:text-gray-400">
+                Let's set up your personalized learning profile
+            </p>
+        </div>
+        
+        <!-- Setup Form -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 animate-slide-up">
+            <form id="setup-form" class="space-y-6">
+                <!-- Name Input -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-user mr-2 text-primary-500"></i>
+                        What's your name?
+                    </label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
+                        placeholder="Enter your name"
+                    >
+                </div>
+                
+                <!-- Experience Level -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
+                        <i class="fas fa-chart-line mr-2 text-primary-500"></i>
+                        What's your programming experience?
+                    </label>
+                    
+                    <div class="space-y-3">
+                        <!-- Complete Beginner -->
+                        <label class="experience-option">
+                            <input type="radio" name="experience_level" value="complete_beginner" class="sr-only">
+                            <div class="experience-card">
+                                <div class="flex items-center">
+                                    <div class="text-2xl mr-3">🌱</div>
+                                    <div>
+                                        <div class="font-semibold text-gray-900 dark:text-white">Complete Beginner</div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">Never coded before</div>
+                                    </div>
+                                </div>
+                                <div class="check-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <!-- Some Programming -->
+                        <label class="experience-option">
+                            <input type="radio" name="experience_level" value="some_programming" class="sr-only">
+                            <div class="experience-card">
+                                <div class="flex items-center">
+                                    <div class="text-2xl mr-3">💻</div>
+                                    <div>
+                                        <div class="font-semibold text-gray-900 dark:text-white">Some Programming</div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">Know other languages</div>
+                                    </div>
+                                </div>
+                                <div class="check-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <!-- Basic Python -->
+                        <label class="experience-option">
+                            <input type="radio" name="experience_level" value="basic_python" class="sr-only">
+                            <div class="experience-card">
+                                <div class="flex items-center">
+                                    <div class="text-2xl mr-3">🐍</div>
+                                    <div>
+                                        <div class="font-semibold text-gray-900 dark:text-white">Basic Python</div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">Know Python basics</div>
+                                    </div>
+                                </div>
+                                <div class="check-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <!-- Intermediate Python -->
+                        <label class="experience-option">
+                            <input type="radio" name="experience_level" value="intermediate_python" class="sr-only">
+                            <div class="experience-card">
+                                <div class="flex items-center">
+                                    <div class="text-2xl mr-3">🚀</div>
+                                    <div>
+                                        <div class="font-semibold text-gray-900 dark:text-white">Intermediate Python</div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">Comfortable with Python</div>
+                                    </div>
+                                </div>
+                                <div class="check-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Learning Goals -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
+                        <i class="fas fa-target mr-2 text-primary-500"></i>
+                        What do you want to achieve? (Optional)
+                    </label>
+                    
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="goal-option">
+                            <input type="checkbox" name="goals" value="web_development" class="sr-only">
+                            <div class="goal-card">
+                                <div class="text-lg mb-1">🌐</div>
+                                <div class="text-xs font-medium">Web Dev</div>
+                            </div>
+                        </label>
+                        
+                        <label class="goal-option">
+                            <input type="checkbox" name="goals" value="data_science" class="sr-only">
+                            <div class="goal-card">
+                                <div class="text-lg mb-1">📊</div>
+                                <div class="text-xs font-medium">Data Science</div>
+                            </div>
+                        </label>
+                        
+                        <label class="goal-option">
+                            <input type="checkbox" name="goals" value="automation" class="sr-only">
+                            <div class="goal-card">
+                                <div class="text-lg mb-1">🤖</div>
+                                <div class="text-xs font-medium">Automation</div>
+                            </div>
+                        </label>
+                        
+                        <label class="goal-option">
+                            <input type="checkbox" name="goals" value="ai_ml" class="sr-only">
+                            <div class="goal-card">
+                                <div class="text-lg mb-1">🧠</div>
+                                <div class="text-xs font-medium">AI/ML</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Submit Button -->
+                <button 
+                    type="submit" 
+                    class="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white py-3 px-4 rounded-lg font-semibold text-lg hover:from-primary-600 hover:to-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled
+                >
+                    <i class="fas fa-rocket mr-2"></i>
+                    Start My Python Journey
+                </button>
+            </form>
+        </div>
+        
+        <!-- Features Preview -->
+        <div class="text-center animate-fade-in">
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                What you'll get:
+            </p>
+            <div class="flex justify-center space-x-6 text-xs">
+                <div class="flex items-center">
+                    <i class="fas fa-book text-primary-500 mr-1"></i>
+                    <span>30+ Lessons</span>
+                </div>
+                <div class="flex items-center">
+                    <i class="fas fa-trophy text-yellow-500 mr-1"></i>
+                    <span>Achievements</span>
+                </div>
+                <div class="flex items-center">
+                    <i class="fas fa-code text-green-500 mr-1"></i>
+                    <span>Live Coding</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.experience-card {
+    @apply flex items-center justify-between p-4 border-2 border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer transition-all duration-200 hover:border-primary-300 dark:hover:border-primary-500;
+}
+
+.experience-option input:checked + .experience-card {
+    @apply border-primary-500 bg-primary-50 dark:bg-primary-900;
+}
+
+.check-icon {
+    @apply w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-white text-sm opacity-0 transition-all duration-200;
+}
+
+.experience-option input:checked + .experience-card .check-icon {
+    @apply bg-primary-500 opacity-100;
+}
+
+.goal-card {
+    @apply p-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg text-center cursor-pointer transition-all duration-200 hover:border-primary-300 dark:hover:border-primary-500;
+}
+
+.goal-option input:checked + .goal-card {
+    @apply border-primary-500 bg-primary-50 dark:bg-primary-900;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('setup-form');
+    const submitButton = form.querySelector('button[type="submit"]');
+    const nameInput = document.getElementById('name');
+    const experienceInputs = document.querySelectorAll('input[name="experience_level"]');
+    
+    // Enable/disable submit button based on form completion
+    function checkFormValidity() {
+        const name = nameInput.value.trim();
+        const experienceSelected = Array.from(experienceInputs).some(input => input.checked);
+        
+        submitButton.disabled = !(name && experienceSelected);
+    }
+    
+    // Add event listeners
+    nameInput.addEventListener('input', checkFormValidity);
+    experienceInputs.forEach(input => {
+        input.addEventListener('change', checkFormValidity);
+    });
+    
+    // Form submission
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        const data = {
+            name: formData.get('name'),
+            experience_level: formData.get('experience_level'),
+            goals: formData.getAll('goals')
+        };
+        
+        // Show loading state
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating your profile...';
+        submitButton.disabled = true;
+        
+        try {
+            const response = await fetch('/setup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Success animation
+                submitButton.innerHTML = '<i class="fas fa-check mr-2"></i>Profile Created!';
+                submitButton.className = submitButton.className.replace('from-primary-500 to-primary-600', 'from-green-500 to-green-600');
+                
+                // Show success message
+                showToast('Welcome to Python Learning! 🎉', 'success');
+                
+                // Redirect after a short delay
+                setTimeout(() => {
+                    window.location.href = result.redirect;
+                }, 1500);
+            } else {
+                throw new Error(result.message || 'Setup failed');
+            }
+        } catch (error) {
+            console.error('Setup error:', error);
+            showToast('Setup failed. Please try again.', 'error');
+            
+            // Reset button
+            submitButton.innerHTML = '<i class="fas fa-rocket mr-2"></i>Start My Python Journey';
+            submitButton.disabled = false;
+        }
+    });
+    
+    // Add smooth animations to form elements
+    const formElements = form.querySelectorAll('input, button, label');
+    formElements.forEach((element, index) => {
+        element.style.animationDelay = `${index * 0.1}s`;
+        element.classList.add('animate-slide-up');
+    });
+});
+
+// Add ripple effect to buttons
+document.querySelectorAll('.experience-card, .goal-card').forEach(card => {
+    card.addEventListener('click', function(e) {
+        const ripple = document.createElement('div');
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+        
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        ripple.classList.add('ripple');
+        
+        this.appendChild(ripple);
+        
+        setTimeout(() => {
+            ripple.remove();
+        }, 600);
+    });
+});
+</script>
+
+<style>
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(59, 130, 246, 0.3);
+    transform: scale(0);
+    animation: ripple-animation 0.6s linear;
+    pointer-events: none;
+}
+
+@keyframes ripple-animation {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,87 @@
+{
+  "id": "easy_003",
+  "title": "Find Maximum",
+  "category": "basics",
+  "difficulty": "easy",
+  "description": "Write a function that finds the maximum number in a list",
+  "function_name": "find_maximum",
+  "parameters": [
+    "numbers: List[int]"
+  ],
+  "return_type": "int",
+  "examples": [
+    {
+      "input": [
+        [
+          1,
+          3,
+          2
+        ]
+      ],
+      "output": 3
+    },
+    {
+      "input": [
+        [
+          -1,
+          -5,
+          -2
+        ]
+      ],
+      "output": -1
+    }
+  ],
+  "test_cases": [
+    {
+      "input": [
+        [
+          1,
+          3,
+          2
+        ]
+      ],
+      "expected": 3,
+      "hidden": false
+    },
+    {
+      "input": [
+        [
+          -1,
+          -5,
+          -2
+        ]
+      ],
+      "expected": -1,
+      "hidden": false
+    },
+    {
+      "input": [
+        [
+          5
+        ]
+      ],
+      "expected": 5,
+      "hidden": true
+    },
+    {
+      "input": [
+        [
+          10,
+          20,
+          30,
+          40,
+          50
+        ]
+      ],
+      "expected": 50,
+      "hidden": true
+    }
+  ],
+  "hints": [
+    "You can use the built-in max() function",
+    "Or iterate through the list to find the maximum manually"
+  ],
+  "time_limit": 2,
+  "memory_limit": 128,
+  "points": 20
+}

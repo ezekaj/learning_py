@@ -1,0 +1,60 @@
+{
+  "title": "Python Basics",
+  "description": "Test your knowledge of Python fundamentals",
+  "difficulty": "beginner",
+  "time_limit": 300,
+  "questions": [
+    {
+      "id": "pb_001",
+      "type": "multiple_choice",
+      "question": "What is the correct way to create a comment in Python?",
+      "options": [
+        "// This is a comment",
+        "/* This is a comment */",
+        "# This is a comment",
+        "<!-- This is a comment -->"
+      ],
+      "correct_answer": 2,
+      "explanation": "In Python, comments start with the # symbol. Everything after # on that line is ignored by the Python interpreter."
+    },
+    {
+      "id": "pb_002",
+      "type": "code_completion",
+      "question": "Complete the code to print 'Hello, World!':",
+      "code_template": "print(___)",
+      "correct_answer": "'Hello, World!'",
+      "alternative_answers": [
+        "\"Hello, World!\""
+      ],
+      "explanation": "The print() function outputs text to the console. Strings can be enclosed in single or double quotes."
+    },
+    {
+      "id": "pb_003",
+      "type": "true_false",
+      "question": "Python is case-sensitive.",
+      "correct_answer": true,
+      "explanation": "Python is case-sensitive, meaning 'Variable' and 'variable' are treated as different identifiers."
+    },
+    {
+      "id": "pb_004",
+      "type": "multiple_choice",
+      "question": "Which of the following is NOT a valid Python variable name?",
+      "options": [
+        "my_variable",
+        "_private_var",
+        "2nd_variable",
+        "variable2"
+      ],
+      "correct_answer": 2,
+      "explanation": "Variable names cannot start with a number. '2nd_variable' is invalid because it starts with '2'."
+    },
+    {
+      "id": "pb_005",
+      "type": "code_output",
+      "question": "What will this code output?",
+      "code": "x = 5\ny = 3\nprint(x + y)",
+      "correct_answer": "8",
+      "explanation": "The code adds 5 + 3 = 8 and prints the result."
+    }
+  ]
+}

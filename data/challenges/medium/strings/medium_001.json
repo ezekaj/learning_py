@@ -1,0 +1,71 @@
+{
+  "id": "medium_001",
+  "title": "Palindrome Check",
+  "category": "strings",
+  "difficulty": "medium",
+  "description": "Write a function that checks if a string is a palindrome (reads the same forwards and backwards)",
+  "function_name": "is_palindrome",
+  "parameters": [
+    "s: str"
+  ],
+  "return_type": "bool",
+  "examples": [
+    {
+      "input": [
+        "racecar"
+      ],
+      "output": true
+    },
+    {
+      "input": [
+        "hello"
+      ],
+      "output": false
+    }
+  ],
+  "test_cases": [
+    {
+      "input": [
+        "racecar"
+      ],
+      "expected": true,
+      "hidden": false
+    },
+    {
+      "input": [
+        "hello"
+      ],
+      "expected": false,
+      "hidden": false
+    },
+    {
+      "input": [
+        ""
+      ],
+      "expected": true,
+      "hidden": true
+    },
+    {
+      "input": [
+        "a"
+      ],
+      "expected": true,
+      "hidden": true
+    },
+    {
+      "input": [
+        "Aa"
+      ],
+      "expected": false,
+      "hidden": true
+    }
+  ],
+  "hints": [
+    "Compare the string with its reverse",
+    "You can use string slicing: s[::-1]",
+    "Consider case sensitivity"
+  ],
+  "time_limit": 3,
+  "memory_limit": 128,
+  "points": 30
+}

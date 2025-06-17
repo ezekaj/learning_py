@@ -1,0 +1,16 @@
+{
+  "title": "Control Structures",
+  "description": "Test your knowledge of if statements, loops, and control flow",
+  "difficulty": "intermediate",
+  "time_limit": 600,
+  "questions": [
+    {
+      "id": "cs_001",
+      "type": "code_output",
+      "question": "What will this code output?",
+      "code": "for i in range(3):\n    print(i)",
+      "correct_answer": "0\n1\n2",
+      "explanation": "range(3) generates numbers 0, 1, 2. The loop prints each number on a new line."
+    }
+  ]
+}

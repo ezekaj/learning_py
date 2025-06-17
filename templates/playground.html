@@ -1,0 +1,601 @@
+{% extends "base.html" %}
+
+{% block title %}Code Playground - Python Learning Program{% endblock %}
+
+{% block extra_head %}
+<!-- Monaco Editor -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8 animate-fade-in">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
+                    🧪 Code Playground
+                </h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">
+                    Experiment with Python code in a safe environment
+                </p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="clear-btn" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors">
+                    <i class="fas fa-trash mr-2"></i>Clear
+                </button>
+                <button id="save-btn" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+                    <i class="fas fa-save mr-2"></i>Save
+                </button>
+                <button id="share-btn" class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors">
+                    <i class="fas fa-share mr-2"></i>Share
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Playground -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Code Editor -->
+        <div class="lg:col-span-2">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden animate-slide-up">
+                <!-- Editor Header -->
+                <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 border-b border-gray-200 dark:border-gray-600">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex space-x-2">
+                                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">main.py</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Python 3.x</span>
+                            <button id="ai-help-btn" class="px-3 py-1 bg-purple-500 hover:bg-purple-600 text-white text-xs rounded transition-colors" title="Get AI Help">
+                                <i class="fas fa-robot mr-1"></i>AI
+                            </button>
+                            <button id="run-btn" class="px-4 py-1 bg-green-500 hover:bg-green-600 text-white text-sm rounded transition-colors">
+                                <i class="fas fa-play mr-1"></i>Run
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Monaco Editor Container -->
+                <div id="editor-container" class="h-96"></div>
+                
+                <!-- Quick Examples -->
+                <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 border-t border-gray-200 dark:border-gray-600">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Quick Examples:</span>
+                        <div class="flex space-x-2">
+                            <button class="example-btn px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors" data-example="hello">
+                                Hello World
+                            </button>
+                            <button class="example-btn px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors" data-example="variables">
+                                Variables
+                            </button>
+                            <button class="example-btn px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors" data-example="loop">
+                                For Loop
+                            </button>
+                            <button class="example-btn px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors" data-example="function">
+                                Function
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Output Console -->
+            <div class="bg-gray-900 rounded-xl shadow-lg mt-6 overflow-hidden animate-slide-up">
+                <div class="bg-gray-800 px-4 py-3 border-b border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-300">Output Console</span>
+                        <div class="flex items-center space-x-2">
+                            <span id="execution-time" class="text-xs text-gray-400"></span>
+                            <button id="clear-output-btn" class="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs rounded transition-colors">
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="output-container" class="p-4 h-48 overflow-y-auto font-mono text-sm text-green-400">
+                    <div class="text-gray-500">Ready to run your Python code...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- AI Assistant Panel -->
+            <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl shadow-lg p-6 animate-slide-up text-white">
+                <h3 class="text-lg font-bold mb-4 flex items-center">
+                    🤖 Pythia AI Assistant
+                </h3>
+                <div class="space-y-3">
+                    <button id="ai-analyze-btn" class="w-full px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg transition-colors text-sm">
+                        <i class="fas fa-search mr-2"></i>Analyze My Code
+                    </button>
+                    <button id="ai-hint-btn" class="w-full px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg transition-colors text-sm">
+                        <i class="fas fa-lightbulb mr-2"></i>Get Smart Hint
+                    </button>
+                    <button id="natural-lang-btn" class="w-full px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg transition-colors text-sm">
+                        <i class="fas fa-magic mr-2"></i>Natural Language
+                    </button>
+                </div>
+                <div id="ai-response" class="mt-4 p-3 bg-white bg-opacity-10 rounded-lg text-sm hidden">
+                    <div id="ai-message"></div>
+                </div>
+            </div>
+
+            <!-- Tips & Tricks -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 animate-slide-up">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                    💡 Tips & Tricks
+                </h3>
+                <div class="space-y-3 text-sm">
+                    <div class="flex items-start">
+                        <i class="fas fa-lightbulb text-yellow-500 mr-2 mt-1"></i>
+                        <span class="text-gray-600 dark:text-gray-400">
+                            Use <code class="bg-gray-100 dark:bg-gray-700 px-1 rounded">print()</code> to see output
+                        </span>
+                    </div>
+                    <div class="flex items-start">
+                        <i class="fas fa-keyboard text-blue-500 mr-2 mt-1"></i>
+                        <span class="text-gray-600 dark:text-gray-400">
+                            Press <kbd class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs">Ctrl+Enter</kbd> to run
+                        </span>
+                    </div>
+                    <div class="flex items-start">
+                        <i class="fas fa-shield-alt text-green-500 mr-2 mt-1"></i>
+                        <span class="text-gray-600 dark:text-gray-400">
+                            Code runs in a safe sandbox environment
+                        </span>
+                    </div>
+                    <div class="flex items-start">
+                        <i class="fas fa-clock text-purple-500 mr-2 mt-1"></i>
+                        <span class="text-gray-600 dark:text-gray-400">
+                            Execution timeout: 5 seconds
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Saved Snippets -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 animate-slide-up">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                        💾 Saved Snippets
+                    </h3>
+                    <button id="refresh-snippets-btn" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div id="snippets-container" class="space-y-2">
+                    <div class="text-center py-4 text-gray-500 dark:text-gray-400 text-sm">
+                        No saved snippets yet
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Python Reference -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 animate-slide-up">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                    📖 Quick Reference
+                </h3>
+                <div class="space-y-3 text-sm">
+                    <div>
+                        <h4 class="font-semibold text-gray-900 dark:text-white">Variables</h4>
+                        <code class="text-xs text-gray-600 dark:text-gray-400">name = "Python"</code>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900 dark:text-white">Lists</h4>
+                        <code class="text-xs text-gray-600 dark:text-gray-400">numbers = [1, 2, 3]</code>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900 dark:text-white">Functions</h4>
+                        <code class="text-xs text-gray-600 dark:text-gray-400">def greet(): return "Hi"</code>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900 dark:text-white">Loops</h4>
+                        <code class="text-xs text-gray-600 dark:text-gray-400">for i in range(5):</code>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Live Users (if any) -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 animate-slide-up">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                    👥 Live Users
+                </h3>
+                <div id="live-users" class="space-y-2">
+                    <div class="text-center py-4 text-gray-500 dark:text-gray-400 text-sm">
+                        You're coding alone
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Save Snippet Modal -->
+<div id="save-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md mx-4">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Save Code Snippet</h3>
+        <form id="save-form">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Snippet Name
+                </label>
+                <input type="text" id="snippet-name" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="My awesome code">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Description (optional)
+                </label>
+                <textarea id="snippet-description" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" rows="3" placeholder="What does this code do?"></textarea>
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button type="button" id="cancel-save" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                    Cancel
+                </button>
+                <button type="submit" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg">
+                    Save Snippet
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let editor;
+let currentCode = '';
+
+// Code examples
+const examples = {
+    hello: `# Hello World Example
+print("Hello, World!")
+print("Welcome to Python!")`,
+    
+    variables: `# Variables Example
+name = "Python"
+age = 30
+is_awesome = True
+
+print(f"Language: {name}")
+print(f"Age: {age} years")
+print(f"Is awesome: {is_awesome}")`,
+    
+    loop: `# For Loop Example
+fruits = ["apple", "banana", "orange"]
+
+print("My favorite fruits:")
+for fruit in fruits:
+    print(f"- {fruit}")
+
+# Number loop
+for i in range(1, 6):
+    print(f"Count: {i}")`,
+    
+    function: `# Function Example
+def greet(name):
+    return f"Hello, {name}!"
+
+def calculate_area(length, width):
+    return length * width
+
+# Using functions
+message = greet("Python Learner")
+print(message)
+
+area = calculate_area(5, 3)
+print(f"Area: {area} square units")`
+};
+
+// Initialize Monaco Editor
+require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+require(['vs/editor/editor.main'], function () {
+    editor = monaco.editor.create(document.getElementById('editor-container'), {
+        value: '# Welcome to Python Playground!\n# Write your Python code here and click Run\n\nprint("Hello, Python!")',
+        language: 'python',
+        theme: document.documentElement.classList.contains('dark') ? 'vs-dark' : 'vs',
+        fontSize: 14,
+        minimap: { enabled: false },
+        scrollBeyondLastLine: false,
+        automaticLayout: true,
+        tabSize: 4,
+        insertSpaces: true
+    });
+    
+    // Update theme when dark mode changes
+    const observer = new MutationObserver(() => {
+        const isDark = document.documentElement.classList.contains('dark');
+        monaco.editor.setTheme(isDark ? 'vs-dark' : 'vs');
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    
+    // Keyboard shortcuts
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, runCode);
+});
+
+// Run code function
+async function runCode() {
+    const code = editor.getValue();
+    const outputContainer = document.getElementById('output-container');
+    const executionTimeSpan = document.getElementById('execution-time');
+    const runBtn = document.getElementById('run-btn');
+    
+    // Show loading state
+    runBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Running...';
+    runBtn.disabled = true;
+    
+    outputContainer.innerHTML = '<div class="text-yellow-400">Executing...</div>';
+    
+    const startTime = Date.now();
+    
+    try {
+        const response = await fetch('/api/execute_code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ code: code })
+        });
+        
+        const result = await response.json();
+        const endTime = Date.now();
+        const executionTime = endTime - startTime;
+        
+        // Display results
+        let output = '';
+        
+        if (result.success) {
+            if (result.output) {
+                output = `<div class="text-green-400">${escapeHtml(result.output)}</div>`;
+            } else {
+                output = '<div class="text-gray-400">Code executed successfully (no output)</div>';
+            }
+            
+            if (result.error) {
+                output += `<div class="text-yellow-400 mt-2">Warnings:\n${escapeHtml(result.error)}</div>`;
+            }
+        } else {
+            output = `<div class="text-red-400">Error: ${escapeHtml(result.error)}</div>`;
+            if (result.traceback) {
+                output += `<div class="text-red-300 mt-2 text-xs">${escapeHtml(result.traceback)}</div>`;
+            }
+        }
+        
+        outputContainer.innerHTML = output;
+        executionTimeSpan.textContent = `Executed in ${executionTime}ms`;
+        
+        // Show success toast
+        if (result.success) {
+            showToast('Code executed successfully! 🎉', 'success');
+        }
+        
+    } catch (error) {
+        outputContainer.innerHTML = `<div class="text-red-400">Network error: ${error.message}</div>`;
+        showToast('Failed to execute code', 'error');
+    } finally {
+        // Reset button
+        runBtn.innerHTML = '<i class="fas fa-play mr-1"></i>Run';
+        runBtn.disabled = false;
+    }
+}
+
+// Utility function to escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML.replace(/\n/g, '<br>');
+}
+
+// AI Assistant Functions
+async function analyzeCodeWithAI() {
+    const code = editor.getValue();
+    if (!code.trim()) {
+        showToast('Please write some code first!', 'warning');
+        return;
+    }
+
+    const aiResponse = document.getElementById('ai-response');
+    const aiMessage = document.getElementById('ai-message');
+
+    aiResponse.classList.remove('hidden');
+    aiMessage.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Pythia is analyzing your code...';
+
+    try {
+        const response = await fetch('/api/code_analysis', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: code, user_level: 'beginner' })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            let message = '<div class="font-semibold mb-2">🤖 Pythia\'s Analysis:</div>';
+
+            if (result.analysis.explanation.length > 0) {
+                message += '<div class="mb-2"><strong>What I see:</strong><ul class="list-disc list-inside ml-2">';
+                result.analysis.explanation.forEach(exp => {
+                    message += `<li>${exp}</li>`;
+                });
+                message += '</ul></div>';
+            }
+
+            if (result.suggestions.length > 0) {
+                message += '<div class="mb-2"><strong>Suggestions:</strong><ul class="list-disc list-inside ml-2">';
+                result.suggestions.forEach(sug => {
+                    message += `<li>${sug}</li>`;
+                });
+                message += '</ul></div>';
+            }
+
+            message += `<div class="mt-2 text-purple-200">${result.encouragement}</div>`;
+            aiMessage.innerHTML = message;
+        }
+    } catch (error) {
+        aiMessage.innerHTML = '❌ Sorry, I couldn\'t analyze your code right now.';
+    }
+}
+
+async function getAIHint() {
+    const code = editor.getValue();
+    const aiResponse = document.getElementById('ai-response');
+    const aiMessage = document.getElementById('ai-message');
+
+    aiResponse.classList.remove('hidden');
+    aiMessage.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Pythia is thinking...';
+
+    try {
+        const response = await fetch('/api/ai_help', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                code: code,
+                context: 'I need help with my code',
+                user_level: 'beginner'
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success && result.ai_response.hint) {
+            aiMessage.innerHTML = `<div class="font-semibold mb-2">💡 Pythia's Hint:</div>${result.ai_response.hint.replace(/\n/g, '<br>')}`;
+        } else {
+            aiMessage.innerHTML = '🤔 Try breaking your problem into smaller steps!';
+        }
+    } catch (error) {
+        aiMessage.innerHTML = '❌ Sorry, I couldn\'t provide a hint right now.';
+    }
+}
+
+async function naturalLanguageCode() {
+    const description = prompt('🤖 Describe what you want to code:\n(e.g., "print hello world", "create a loop", "make a function")');
+
+    if (!description) return;
+
+    const aiResponse = document.getElementById('ai-response');
+    const aiMessage = document.getElementById('ai-message');
+
+    aiResponse.classList.remove('hidden');
+    aiMessage.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Pythia is generating code...';
+
+    try {
+        const response = await fetch('/api/natural_language_code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ description: description })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            editor.setValue(result.generated_code);
+            aiMessage.innerHTML = `<div class="font-semibold mb-2">✨ Generated Code:</div>${result.explanation}`;
+            showToast('Code generated! 🎉', 'success');
+        }
+    } catch (error) {
+        aiMessage.innerHTML = '❌ Sorry, I couldn\'t generate code right now.';
+    }
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Run button
+    document.getElementById('run-btn').addEventListener('click', runCode);
+
+    // AI Assistant buttons
+    document.getElementById('ai-help-btn').addEventListener('click', getAIHint);
+    document.getElementById('ai-analyze-btn').addEventListener('click', analyzeCodeWithAI);
+    document.getElementById('ai-hint-btn').addEventListener('click', getAIHint);
+    document.getElementById('natural-lang-btn').addEventListener('click', naturalLanguageCode);
+    
+    // Clear button
+    document.getElementById('clear-btn').addEventListener('click', function() {
+        if (editor) {
+            editor.setValue('# Write your Python code here\n\n');
+            editor.focus();
+        }
+    });
+    
+    // Clear output button
+    document.getElementById('clear-output-btn').addEventListener('click', function() {
+        document.getElementById('output-container').innerHTML = '<div class="text-gray-500">Output cleared</div>';
+        document.getElementById('execution-time').textContent = '';
+    });
+    
+    // Example buttons
+    document.querySelectorAll('.example-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const example = this.dataset.example;
+            if (editor && examples[example]) {
+                editor.setValue(examples[example]);
+                editor.focus();
+                showToast(`Loaded ${example} example`, 'info');
+            }
+        });
+    });
+    
+    // Save button
+    document.getElementById('save-btn').addEventListener('click', function() {
+        document.getElementById('save-modal').classList.remove('hidden');
+        document.getElementById('snippet-name').focus();
+    });
+    
+    // Cancel save
+    document.getElementById('cancel-save').addEventListener('click', function() {
+        document.getElementById('save-modal').classList.add('hidden');
+    });
+    
+    // Save form
+    document.getElementById('save-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Implementation for saving snippets would go here
+        showToast('Snippet saved! 💾', 'success');
+        document.getElementById('save-modal').classList.add('hidden');
+    });
+    
+    // Share button
+    document.getElementById('share-btn').addEventListener('click', function() {
+        if (navigator.share) {
+            navigator.share({
+                title: 'Python Code Snippet',
+                text: editor.getValue()
+            });
+        } else {
+            // Fallback: copy to clipboard
+            navigator.clipboard.writeText(editor.getValue()).then(() => {
+                showToast('Code copied to clipboard! 📋', 'success');
+            });
+        }
+    });
+});
+
+// Socket.IO for real-time features
+if (typeof socket !== 'undefined') {
+    socket.on('user_typing', function(data) {
+        // Show typing indicator for other users
+        console.log(`${data.user} is typing...`);
+    });
+    
+    // Emit typing events (throttled)
+    let typingTimeout;
+    if (editor) {
+        editor.onDidChangeModelContent(() => {
+            clearTimeout(typingTimeout);
+            socket.emit('typing_code', { code: editor.getValue() });
+            
+            typingTimeout = setTimeout(() => {
+                // Stop typing indicator
+            }, 1000);
+        });
+    }
+}
+</script>
+{% endblock %}

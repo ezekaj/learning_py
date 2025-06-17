@@ -1,0 +1,30 @@
+{
+  "id": "easy_001",
+  "title": "Hello World",
+  "category": "basics",
+  "difficulty": "easy",
+  "description": "Write a function that returns 'Hello, World!'",
+  "function_name": "hello_world",
+  "parameters": [],
+  "return_type": "str",
+  "examples": [
+    {
+      "input": [],
+      "output": "Hello, World!"
+    }
+  ],
+  "test_cases": [
+    {
+      "input": [],
+      "expected": "Hello, World!",
+      "hidden": false
+    }
+  ],
+  "hints": [
+    "Return the string 'Hello, World!' exactly as shown",
+    "Make sure to include the comma and exclamation mark"
+  ],
+  "time_limit": 1,
+  "memory_limit": 128,
+  "points": 10
+}

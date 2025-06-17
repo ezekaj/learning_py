@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐍 Welcome to Your Python Journey!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .slide { display: none; opacity: 0; transform: translateX(50px); transition: all 0.5s ease; }
+        .slide.active { display: block; opacity: 1; transform: translateX(0); }
+        .mascot { animation: bounce 2s infinite; }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        .typing-animation {
+            border-right: 2px solid #667eea;
+            animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: #667eea; }
+        }
+        .progress-dot { transition: all 0.3s ease; }
+        .progress-dot.active { background: #667eea; transform: scale(1.2); }
+    </style>
+</head>
+<body class="bg-gray-50 overflow-hidden">
+    <div class="min-h-screen flex items-center justify-center">
+        <div class="max-w-4xl w-full mx-auto px-6">
+            
+            <!-- Progress Indicator -->
+            <div class="flex justify-center mb-8">
+                <div class="flex space-x-3">
+                    <div class="progress-dot w-3 h-3 rounded-full bg-gray-300 active" data-slide="0"></div>
+                    <div class="progress-dot w-3 h-3 rounded-full bg-gray-300" data-slide="1"></div>
+                    <div class="progress-dot w-3 h-3 rounded-full bg-gray-300" data-slide="2"></div>
+                    <div class="progress-dot w-3 h-3 rounded-full bg-gray-300" data-slide="3"></div>
+                    <div class="progress-dot w-3 h-3 rounded-full bg-gray-300" data-slide="4"></div>
+                </div>
+            </div>
+
+            <!-- Slide 1: Welcome -->
+            <div class="slide active text-center" id="slide0">
+                <div class="mascot text-8xl mb-6">🐍</div>
+                <h1 class="text-4xl md:text-6xl font-bold text-gray-800 mb-4">
+                    Welcome to <span class="text-purple-600">Pythia</span>!
+                </h1>
+                <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                    Your AI-powered companion for mastering Python programming. 
+                    We're here to make your coding journey <span class="font-bold text-purple-600">fun, engaging, and successful!</span>
+                </p>
+                <div class="bg-blue-50 rounded-xl p-6 mb-8 max-w-2xl mx-auto">
+                    <div class="flex items-center justify-center mb-4">
+                        <div class="text-3xl mr-3">🎯</div>
+                        <h3 class="text-lg font-bold text-gray-800">Our Mission</h3>
+                    </div>
+                    <p class="text-gray-700">
+                        To provide <span class="font-bold">free, world-class Python education</span> 
+                        that adapts to your learning style and helps you achieve your programming goals.
+                    </p>
+                </div>
+                <button onclick="nextSlide()" class="bg-purple-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-purple-700 transition-colors">
+                    Let's Get Started! <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+
+            <!-- Slide 2: What Makes Us Special -->
+            <div class="slide text-center" id="slide1">
+                <div class="text-6xl mb-6">✨</div>
+                <h2 class="text-3xl md:text-5xl font-bold text-gray-800 mb-6">
+                    What Makes Pythia <span class="text-purple-600">Revolutionary?</span>
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+                        <div class="text-4xl mb-4">🧠</div>
+                        <h3 class="text-xl font-bold mb-3 text-gray-800">AI-Powered Learning</h3>
+                        <p class="text-gray-600">
+                            Pythia AI adapts to your learning style, provides instant help, and guides you through challenges.
+                        </p>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+                        <div class="text-4xl mb-4">🎮</div>
+                        <h3 class="text-xl font-bold mb-3 text-gray-800">Gamified Experience</h3>
+                        <p class="text-gray-600">
+                            Earn points, unlock achievements, and solve coding puzzles that make learning addictive!
+                        </p>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+                        <div class="text-4xl mb-4">🧩</div>
+                        <h3 class="text-xl font-bold mb-3 text-gray-800">Visual Puzzles</h3>
+                        <p class="text-gray-600">
+                            Learn through Code Tetris, Programming Jigsaws, and Mystery Challenges - world's first!
+                        </p>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+                        <div class="text-4xl mb-4">⚡</div>
+                        <h3 class="text-xl font-bold mb-3 text-gray-800">Microlearning</h3>
+                        <p class="text-gray-600">
+                            Bite-sized lessons with spaced repetition ensure you retain what you learn.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex justify-center space-x-4">
+                    <button onclick="prevSlide()" class="bg-gray-300 text-gray-700 px-6 py-3 rounded-full font-bold hover:bg-gray-400 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Back
+                    </button>
+                    <button onclick="nextSlide()" class="bg-purple-600 text-white px-8 py-3 rounded-full font-bold hover:bg-purple-700 transition-colors">
+                        Amazing! <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Slide 3: Your Learning Journey -->
+            <div class="slide text-center" id="slide2">
+                <div class="text-6xl mb-6">🚀</div>
+                <h2 class="text-3xl md:text-5xl font-bold text-gray-800 mb-6">
+                    Your <span class="text-purple-600">Learning Journey</span>
+                </h2>
+                <div class="max-w-3xl mx-auto mb-8">
+                    <div class="relative">
+                        <!-- Journey Path -->
+                        <div class="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-purple-200"></div>
+                        
+                        <!-- Journey Steps -->
+                        <div class="space-y-8">
+                            <div class="flex items-center">
+                                <div class="flex-1 text-right pr-8">
+                                    <h3 class="font-bold text-lg text-gray-800">🌱 Start Your Adventure</h3>
+                                    <p class="text-gray-600">Choose your level and learning goals</p>
+                                </div>
+                                <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold z-10">1</div>
+                                <div class="flex-1 pl-8"></div>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <div class="flex-1 pr-8"></div>
+                                <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold z-10">2</div>
+                                <div class="flex-1 text-left pl-8">
+                                    <h3 class="font-bold text-lg text-gray-800">📚 Learn with AI</h3>
+                                    <p class="text-gray-600">Interactive lessons adapted to your pace</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <div class="flex-1 text-right pr-8">
+                                    <h3 class="font-bold text-lg text-gray-800">🎮 Play & Practice</h3>
+                                    <p class="text-gray-600">Solve puzzles and coding challenges</p>
+                                </div>
+                                <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold z-10">3</div>
+                                <div class="flex-1 pl-8"></div>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <div class="flex-1 pr-8"></div>
+                                <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold z-10">4</div>
+                                <div class="flex-1 text-left pl-8">
+                                    <h3 class="font-bold text-lg text-gray-800">🏆 Master Python</h3>
+                                    <p class="text-gray-600">Build projects and earn achievements</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-center space-x-4">
+                    <button onclick="prevSlide()" class="bg-gray-300 text-gray-700 px-6 py-3 rounded-full font-bold hover:bg-gray-400 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Back
+                    </button>
+                    <button onclick="nextSlide()" class="bg-purple-600 text-white px-8 py-3 rounded-full font-bold hover:bg-purple-700 transition-colors">
+                        I'm Ready! <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Slide 4: Success Stories -->
+            <div class="slide text-center" id="slide3">
+                <div class="text-6xl mb-6">🌟</div>
+                <h2 class="text-3xl md:text-5xl font-bold text-gray-800 mb-6">
+                    Join <span class="text-purple-600">Thousands</span> of Successful Learners
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-xl p-6 shadow-lg">
+                        <div class="text-4xl mb-4">👩‍💻</div>
+                        <h3 class="font-bold text-lg mb-2">Sarah, 28</h3>
+                        <p class="text-gray-600 text-sm mb-3">"Went from zero to landing my first developer job in 6 months!"</p>
+                        <div class="text-yellow-500">⭐⭐⭐⭐⭐</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-lg">
+                        <div class="text-4xl mb-4">👨‍🎓</div>
+                        <h3 class="font-bold text-lg mb-2">Mike, 35</h3>
+                        <p class="text-gray-600 text-sm mb-3">"The AI tutor helped me understand concepts I struggled with for years!"</p>
+                        <div class="text-yellow-500">⭐⭐⭐⭐⭐</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-lg">
+                        <div class="text-4xl mb-4">👩‍🔬</div>
+                        <h3 class="font-bold text-lg mb-2">Dr. Lisa, 42</h3>
+                        <p class="text-gray-600 text-sm mb-3">"Perfect for busy professionals. Microlearning fits my schedule!"</p>
+                        <div class="text-yellow-500">⭐⭐⭐⭐⭐</div>
+                    </div>
+                </div>
+                <div class="bg-green-50 rounded-xl p-6 mb-8 max-w-2xl mx-auto">
+                    <div class="text-3xl mb-3">📊</div>
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                            <div class="text-2xl font-bold text-green-600">95%</div>
+                            <div class="text-sm text-gray-600">Completion Rate</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-green-600">4.9/5</div>
+                            <div class="text-sm text-gray-600">User Rating</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-green-600">50K+</div>
+                            <div class="text-sm text-gray-600">Happy Learners</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-center space-x-4">
+                    <button onclick="prevSlide()" class="bg-gray-300 text-gray-700 px-6 py-3 rounded-full font-bold hover:bg-gray-400 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Back
+                    </button>
+                    <button onclick="nextSlide()" class="bg-purple-600 text-white px-8 py-3 rounded-full font-bold hover:bg-purple-700 transition-colors">
+                        Let's Do This! <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Slide 5: Ready to Start -->
+            <div class="slide text-center" id="slide4">
+                <div class="mascot text-8xl mb-6">🎉</div>
+                <h2 class="text-3xl md:text-5xl font-bold text-gray-800 mb-6">
+                    You're <span class="text-purple-600">Ready</span> to Begin!
+                </h2>
+                <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                    Your Python adventure starts now. Pythia AI is excited to be your coding companion!
+                </p>
+                
+                <div class="bg-gradient-to-r from-purple-500 to-blue-600 rounded-xl p-8 mb-8 text-white max-w-2xl mx-auto">
+                    <div class="text-4xl mb-4">🎁</div>
+                    <h3 class="text-2xl font-bold mb-4">Welcome Bonus!</h3>
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                            <div class="text-2xl font-bold">100</div>
+                            <div class="text-sm opacity-90">Bonus Points</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold">🏆</div>
+                            <div class="text-sm opacity-90">Welcome Badge</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold">🔓</div>
+                            <div class="text-sm opacity-90">All Features</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <a href="{{ url_for('register') }}" class="block w-full max-w-md mx-auto bg-green-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-green-700 transition-colors transform hover:scale-105">
+                        🚀 Start My Python Journey
+                    </a>
+                    <a href="{{ url_for('login') }}" class="block w-full max-w-md mx-auto border-2 border-purple-600 text-purple-600 px-8 py-3 rounded-full font-bold hover:bg-purple-600 hover:text-white transition-colors">
+                        🔑 I Already Have an Account
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 5;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.progress-dot');
+            
+            // Hide all slides
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            // Update dots
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === n);
+            });
+            
+            // Show current slide
+            setTimeout(() => {
+                slides[n].classList.add('active');
+            }, 100);
+            
+            currentSlide = n;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        // Auto-advance first slide after 5 seconds
+        setTimeout(() => {
+            if (currentSlide === 0) {
+                nextSlide();
+            }
+        }, 5000);
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        // Click on dots to navigate
+        document.querySelectorAll('.progress-dot').forEach((dot, index) => {
+            dot.addEventListener('click', () => showSlide(index));
+        });
+    </script>
+</body>
+</html>

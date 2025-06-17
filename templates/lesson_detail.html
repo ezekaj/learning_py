@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block title %}{{ lesson.title }} - Python Learning Program{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Lesson Header -->
+    <div class="mb-8 animate-fade-in">
+        <div class="flex items-center justify-between">
+            <div>
+                <nav class="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                    <a href="{{ url_for('lessons') }}" class="hover:text-blue-600 dark:hover:text-blue-400">
+                        📚 Lessons
+                    </a>
+                    <span class="mx-2">›</span>
+                    <span>{{ lesson.title }}</span>
+                </nav>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                    {{ lesson.title }}
+                </h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">
+                    {{ lesson.description }}
+                </p>
+            </div>
+            
+            <!-- Progress Indicator -->
+            <div class="text-right">
+                {% if progress and progress.status == 'completed' %}
+                <div class="flex items-center text-green-600 dark:text-green-400">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span class="font-medium">Completed</span>
+                </div>
+                {% elif progress and progress.status == 'in_progress' %}
+                <div class="flex items-center text-blue-600 dark:text-blue-400">
+                    <i class="fas fa-play-circle mr-2"></i>
+                    <span class="font-medium">In Progress</span>
+                </div>
+                {% else %}
+                <div class="flex items-center text-gray-500 dark:text-gray-400">
+                    <i class="fas fa-circle mr-2"></i>
+                    <span class="font-medium">Not Started</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Lesson Meta -->
+        <div class="flex items-center space-x-6 mt-4 text-sm text-gray-600 dark:text-gray-400">
+            <div class="flex items-center">
+                <i class="fas fa-clock mr-2"></i>
+                <span>{{ lesson.estimated_time }} minutes</span>
+            </div>
+            <div class="flex items-center">
+                <i class="fas fa-signal mr-2"></i>
+                <span class="capitalize">{{ lesson.difficulty }}</span>
+            </div>
+            <div class="flex items-center">
+                <i class="fas fa-star mr-2"></i>
+                <span>{{ lesson.points_reward }} points</span>
+            </div>
+            {% if lesson.exercises %}
+            <div class="flex items-center">
+                <i class="fas fa-tasks mr-2"></i>
+                <span>{{ lesson.exercises|length }} exercises</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Learning Objectives -->
+    {% set objectives = lesson.get_objectives() %}
+    {% if objectives %}
+    <div class="bg-blue-50 dark:bg-blue-900 rounded-xl p-6 mb-8 animate-slide-up">
+        <h2 class="text-lg font-bold text-blue-900 dark:text-blue-100 mb-4">
+            🎯 Learning Objectives
+        </h2>
+        <ul class="space-y-2">
+            {% for objective in objectives %}
+            <li class="flex items-start text-blue-800 dark:text-blue-200">
+                <i class="fas fa-check-circle text-blue-600 dark:text-blue-400 mr-3 mt-1"></i>
+                <span>{{ objective }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    <!-- Lesson Content -->
+    {% set content = lesson.get_content() %}
+    {% if content %}
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-8 animate-slide-up">
+        <!-- Introduction -->
+        {% if content.introduction %}
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                📖 Introduction
+            </h2>
+            <div class="prose dark:prose-invert max-w-none">
+                {{ content.introduction|replace('\n', '<br>')|safe }}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Concepts -->
+        {% if content.concepts %}
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                💡 Key Concepts
+            </h2>
+            
+            <div class="space-y-8">
+                {% for concept in content.concepts %}
+                <div class="border-l-4 border-blue-500 pl-6">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                        {{ loop.index }}. {{ concept.title }}
+                    </h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">
+                        {{ concept.explanation }}
+                    </p>
+                    
+                    {% if concept.example %}
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
+                        <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            💻 Example:
+                        </h4>
+                        <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto"><code>{{ concept.example }}</code></pre>
+                        
+                        {% if concept.output %}
+                        <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mt-4 mb-2">
+                            📤 Output:
+                        </h4>
+                        <pre class="bg-gray-800 text-blue-400 p-3 rounded-lg"><code>{{ concept.output }}</code></pre>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <!-- Exercises Section -->
+    {% if lesson.exercises %}
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-8 animate-slide-up">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            🎯 Practice Exercises
+        </h2>
+        
+        <div class="space-y-6">
+            {% for exercise in lesson.exercises %}
+            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                        Exercise {{ loop.index }}: {{ exercise.title }}
+                    </h3>
+                    <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm font-medium rounded-full">
+                        {{ exercise.points_reward }} points
+                    </span>
+                </div>
+                
+                <p class="text-gray-700 dark:text-gray-300 mb-4">
+                    {{ exercise.description }}
+                </p>
+                
+                {% set exercise_content = exercise.get_content() %}
+                {% if exercise_content.starter_code %}
+                <div class="mb-4">
+                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Starter Code:
+                    </h4>
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto"><code>{{ exercise_content.starter_code }}</code></pre>
+                </div>
+                {% endif %}
+                
+                <div class="flex space-x-3">
+                    <button class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+                        <i class="fas fa-play mr-2"></i>Try Exercise
+                    </button>
+                    <button class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors">
+                        <i class="fas fa-lightbulb mr-2"></i>Get Hint
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Navigation -->
+    <div class="flex items-center justify-between animate-slide-up">
+        <a href="{{ url_for('lessons') }}" class="flex items-center px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Lessons
+        </a>
+        
+        <div class="flex space-x-4">
+            {% if progress and progress.status != 'completed' %}
+            <button id="complete-lesson-btn" class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors">
+                <i class="fas fa-check mr-2"></i>
+                Mark as Complete
+            </button>
+            {% else %}
+            <button class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+                <i class="fas fa-redo mr-2"></i>
+                Review Lesson
+            </button>
+            {% endif %}
+            
+            <!-- Next Lesson Button (if available) -->
+            <a href="{{ url_for('next_lesson', current_lesson_id=lesson.id) }}" class="px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors inline-block">
+                <i class="fas fa-arrow-right mr-2"></i>
+                Next Lesson
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Complete lesson functionality
+    const completeBtn = document.getElementById('complete-lesson-btn');
+    
+    if (completeBtn) {
+        completeBtn.addEventListener('click', async function() {
+            try {
+                const response = await fetch('/api/complete_lesson', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        lesson_id: {{ lesson.id }}
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast('Lesson completed! 🎉', 'success');
+                    
+                    // Update button
+                    completeBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Completed!';
+                    completeBtn.className = completeBtn.className.replace('bg-green-500 hover:bg-green-600', 'bg-gray-500');
+                    completeBtn.disabled = true;
+                    
+                    // Redirect after a delay
+                    setTimeout(() => {
+                        window.location.href = '{{ url_for("lessons") }}';
+                    }, 2000);
+                } else {
+                    showToast('Failed to complete lesson', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('An error occurred', 'error');
+            }
+        });
+    }
+    
+    // Exercise buttons
+    document.querySelectorAll('[data-exercise-id]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const exerciseId = this.dataset.exerciseId;
+            // Open exercise in playground or modal
+            showToast('Exercise feature coming soon!', 'info');
+        });
+    });
+    
+    // Smooth scrolling for concept navigation
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

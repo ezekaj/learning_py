@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎉 Welcome to Your Python Journey!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .celebration { animation: celebration 2s ease-in-out infinite; }
+        @keyframes celebration {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(-5deg); }
+            75% { transform: scale(1.1) rotate(5deg); }
+        }
+        .float { animation: float 3s ease-in-out infinite; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .pulse-glow { animation: pulse-glow 2s infinite; }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.4); }
+            50% { box-shadow: 0 0 40px rgba(102, 126, 234, 0.8); }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="min-h-screen flex items-center justify-center px-4">
+        <div class="max-w-4xl w-full text-center text-white">
+            
+            <!-- Celebration Header -->
+            <div class="celebration text-8xl mb-6">🎉</div>
+            <h1 class="text-4xl md:text-6xl font-bold mb-4">
+                Welcome, <span class="text-yellow-300">{{ user_profile.name }}!</span>
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 opacity-90">
+                You've just joined the most advanced Python learning platform on Earth! 🚀
+            </p>
+
+            <!-- Welcome Bonus -->
+            <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-xl p-8 mb-8 max-w-2xl mx-auto">
+                <div class="text-4xl mb-4">🎁</div>
+                <h2 class="text-2xl font-bold mb-4">Your Welcome Bonus is Ready!</h2>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                        <div class="text-3xl font-bold text-yellow-300">100</div>
+                        <div class="text-sm opacity-90">Bonus Points</div>
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                        <div class="text-3xl">🏆</div>
+                        <div class="text-sm opacity-90">Welcome Badge</div>
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                        <div class="text-3xl">🔓</div>
+                        <div class="text-sm opacity-90">All Features</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personalized Message -->
+            <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-xl p-6 mb-8 max-w-3xl mx-auto">
+                <div class="float text-4xl mb-4">🐍</div>
+                <h3 class="text-xl font-bold mb-4">Pythia AI Says Hello!</h3>
+                <p class="text-lg opacity-90 mb-4">
+                    {% if user_profile.experience_level == 'complete_beginner' %}
+                    "Hi {{ user_profile.name }}! I'm so excited to be your coding companion. Don't worry about being new to programming - I'll guide you every step of the way. We'll start with the absolute basics and build your confidence gradually. You're going to love this journey!"
+                    {% elif user_profile.experience_level == 'some_programming' %}
+                    "Welcome {{ user_profile.name }}! I can see you have some programming experience - that's fantastic! I'll help you transition smoothly into Python and show you what makes it so special. Get ready to fall in love with Python's elegance and power!"
+                    {% elif user_profile.experience_level == 'basic_python' %}
+                    "Hey {{ user_profile.name }}! Great to meet a fellow Python enthusiast! I'm here to help you level up your skills and discover advanced concepts. We'll dive deeper into Python's capabilities and build some amazing projects together!"
+                    {% else %}
+                    "Hello {{ user_profile.name }}! An intermediate Python developer - impressive! I'm excited to challenge you with advanced topics and help you master the art of Pythonic programming. Let's push your skills to the next level!"
+                    {% endif %}
+                </p>
+                <div class="text-sm opacity-75">
+                    - Pythia, Your AI Learning Companion 🤖
+                </div>
+            </div>
+
+            <!-- Learning Goals -->
+            {% if user_profile.learning_goals %}
+            <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-xl p-6 mb-8 max-w-2xl mx-auto">
+                <div class="text-3xl mb-4">🎯</div>
+                <h3 class="text-xl font-bold mb-4">Your Learning Goals</h3>
+                <div class="flex flex-wrap justify-center gap-3">
+                    {% for goal in user_profile.learning_goals %}
+                    <span class="bg-white bg-opacity-30 px-4 py-2 rounded-full text-sm font-medium">
+                        {% if goal == 'web_development' %}🌐 Web Development
+                        {% elif goal == 'data_science' %}📊 Data Science
+                        {% elif goal == 'automation' %}🤖 Automation
+                        {% elif goal == 'ai_ml' %}🧠 AI & ML
+                        {% elif goal == 'career_change' %}💼 Career Change
+                        {% else %}✨ {{ goal.replace('_', ' ').title() }}
+                        {% endif %}
+                    </span>
+                    {% endfor %}
+                </div>
+                <p class="text-sm opacity-75 mt-4">
+                    I've customized your learning path based on these goals!
+                </p>
+            </div>
+            {% endif %}
+
+            <!-- What's Next -->
+            <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-xl p-6 mb-8 max-w-3xl mx-auto">
+                <div class="text-3xl mb-4">🗺️</div>
+                <h3 class="text-xl font-bold mb-4">What's Next?</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                    <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                        <div class="text-2xl mb-2">📚</div>
+                        <h4 class="font-bold mb-2">Start Your First Lesson</h4>
+                        <p class="text-sm opacity-90">Jump into interactive lessons designed for your level</p>
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                        <div class="text-2xl mb-2">🎮</div>
+                        <h4 class="font-bold mb-2">Try Code Puzzles</h4>
+                        <p class="text-sm opacity-90">Play Code Tetris and solve programming mysteries</p>
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                        <div class="text-2xl mb-2">🧪</div>
+                        <h4 class="font-bold mb-2">Explore Playground</h4>
+                        <p class="text-sm opacity-90">Write and run Python code in a safe environment</p>
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                        <div class="text-2xl mb-2">🏆</div>
+                        <h4 class="font-bold mb-2">Earn Achievements</h4>
+                        <p class="text-sm opacity-90">Complete challenges and unlock badges</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-4">
+                <a href="{{ url_for('lessons') }}" 
+                   class="inline-block bg-green-600 text-white px-12 py-4 rounded-full font-bold text-xl hover:bg-green-700 transition-all transform hover:scale-105 pulse-glow">
+                    🚀 Start My First Lesson
+                </a>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{{ url_for('playground') }}" 
+                       class="bg-white bg-opacity-20 text-white px-8 py-3 rounded-full font-bold hover:bg-opacity-30 transition-colors">
+                        🧪 Try Playground
+                    </a>
+                    <a href="{{ url_for('challenges') }}" 
+                       class="bg-white bg-opacity-20 text-white px-8 py-3 rounded-full font-bold hover:bg-opacity-30 transition-colors">
+                        🎮 Play Puzzles
+                    </a>
+                    <a href="{{ url_for('index') }}" 
+                       class="bg-white bg-opacity-20 text-white px-8 py-3 rounded-full font-bold hover:bg-opacity-30 transition-colors">
+                        📊 View Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Motivational Quote -->
+            <div class="mt-12 max-w-2xl mx-auto">
+                <div class="text-3xl mb-4">💭</div>
+                <blockquote class="text-lg italic opacity-90 mb-4">
+                    "The journey of a thousand miles begins with a single step. Your Python journey begins with a single line of code."
+                </blockquote>
+                <p class="text-sm opacity-75">- Ancient Proverb, Adapted for Programmers</p>
+            </div>
+
+            <!-- Skip Option -->
+            <div class="mt-8">
+                <a href="{{ url_for('index') }}" class="text-white opacity-75 hover:opacity-100 text-sm underline">
+                    Skip to Dashboard →
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confetti Animation -->
+    <div id="confetti-container" class="fixed inset-0 pointer-events-none z-50"></div>
+
+    <script>
+        // Confetti animation
+        function createConfetti() {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'absolute';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = '-10px';
+                confetti.style.borderRadius = '50%';
+                confetti.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
+                
+                container.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        // Add CSS for falling animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fall {
+                to {
+                    transform: translateY(100vh) rotate(360deg);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Start confetti
+        createConfetti();
+        
+        // Add more confetti every 3 seconds for the first 10 seconds
+        let confettiCount = 0;
+        const confettiInterval = setInterval(() => {
+            confettiCount++;
+            if (confettiCount < 3) {
+                createConfetti();
+            } else {
+                clearInterval(confettiInterval);
+            }
+        }, 3000);
+
+        // Auto-redirect to lessons after 30 seconds if user doesn't interact
+        let autoRedirectTimer = setTimeout(() => {
+            window.location.href = "{{ url_for('lessons') }}";
+        }, 30000);
+
+        // Cancel auto-redirect if user interacts with the page
+        document.addEventListener('click', () => {
+            clearTimeout(autoRedirectTimer);
+        });
+
+        document.addEventListener('scroll', () => {
+            clearTimeout(autoRedirectTimer);
+        });
+    </script>
+</body>
+</html>

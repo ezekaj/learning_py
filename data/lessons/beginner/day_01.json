@@ -1,0 +1,45 @@
+{
+  "lesson_id": "day_01",
+  "title": "Introduction to Python",
+  "content": {
+    "introduction": "\nWelcome to your Python learning journey! \ud83d\udc0d\n\nPython is a high-level, interpreted programming language known for its simplicity and readability. \nCreated by Guido van Rossum in 1991, Python has become one of the most popular programming languages \nin the world, used for web development, data science, artificial intelligence, automation, and more.\n\nWhy Python?\n\u2022 Easy to learn and read\n\u2022 Versatile and powerful\n\u2022 Large community and ecosystem\n\u2022 Cross-platform compatibility\n\u2022 Extensive libraries and frameworks\n                ",
+    "concepts": [
+      {
+        "title": "What is Python?",
+        "explanation": "Python is an interpreted, high-level programming language with dynamic semantics.",
+        "example": "# This is a Python comment\nprint('Hello, Python!')",
+        "output": "Hello, Python!"
+      },
+      {
+        "title": "Python Syntax",
+        "explanation": "Python uses indentation to define code blocks, making it very readable.",
+        "example": "if True:\n    print('This is indented')\n    print('This too!')",
+        "output": "This is indented\nThis too!"
+      }
+    ],
+    "exercises": [
+      {
+        "id": "ex_01_01",
+        "title": "Your First Program",
+        "description": "Write a program that prints your name",
+        "starter_code": "# Write your code here\n",
+        "solution": "print('Your Name')",
+        "hints": [
+          "Use the print() function",
+          "Put your name in quotes"
+        ]
+      },
+      {
+        "id": "ex_01_02",
+        "title": "Basic Arithmetic",
+        "description": "Calculate and print the result of 15 + 25",
+        "starter_code": "# Calculate 15 + 25\n",
+        "solution": "print(15 + 25)",
+        "hints": [
+          "Use the + operator",
+          "You can print the calculation directly"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "title": "Python Data Types",
+  "description": "Test your understanding of Python data types",
+  "difficulty": "beginner",
+  "time_limit": 400,
+  "questions": [
+    {
+      "id": "dt_001",
+      "type": "multiple_choice",
+      "question": "What data type is the value 3.14?",
+      "options": [
+        "int",
+        "float",
+        "str",
+        "bool"
+      ],
+      "correct_answer": 1,
+      "explanation": "3.14 is a floating-point number, so its data type is float."
+    },
+    {
+      "id": "dt_002",
+      "type": "code_completion",
+      "question": "Complete the code to create a list with numbers 1, 2, 3:",
+      "code_template": "my_list = ___",
+      "correct_answer": "[1, 2, 3]",
+      "explanation": "Lists in Python are created using square brackets with comma-separated values."
+    },
+    {
+      "id": "dt_003",
+      "type": "true_false",
+      "question": "Strings in Python are mutable (can be changed after creation).",
+      "correct_answer": false,
+      "explanation": "Strings in Python are immutable. Once created, they cannot be changed. Operations on strings create new string objects."
+    }
+  ]
+}

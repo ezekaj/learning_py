@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - Python Learning Program{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="min-h-screen flex items-center justify-center gradient-bg relative overflow-hidden">
+    <!-- Animated Background Elements -->
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-white opacity-10 rounded-full animate-pulse-slow"></div>
+        <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-white opacity-5 rounded-full animate-bounce-gentle"></div>
+        <div class="absolute top-1/2 left-1/4 w-32 h-32 bg-white opacity-10 rounded-full animate-pulse"></div>
+    </div>
+    
+    <div class="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
+        <!-- Logo Animation -->
+        <div class="text-8xl mb-6 animate-bounce-gentle">🐍</div>
+        
+        <!-- Main Title -->
+        <h1 class="text-5xl md:text-7xl font-bold mb-6 animate-fade-in">
+            Python Learning Program
+        </h1>
+        
+        <!-- Subtitle -->
+        <p class="text-xl md:text-2xl mb-8 opacity-90 animate-slide-up">
+            Your journey from <span class="font-bold text-yellow-300">beginner</span> to 
+            <span class="font-bold text-yellow-300">expert</span> starts here
+        </p>
+        
+        <!-- Feature Highlights -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 animate-slide-up">
+            <div class="glass-effect rounded-lg p-6 hover-lift">
+                <div class="text-3xl mb-3">📚</div>
+                <h3 class="font-bold mb-2">Structured Learning</h3>
+                <p class="text-sm opacity-80">Progressive lessons from basics to advanced concepts</p>
+            </div>
+            <div class="glass-effect rounded-lg p-6 hover-lift">
+                <div class="text-3xl mb-3">🎮</div>
+                <h3 class="font-bold mb-2">Gamified Experience</h3>
+                <p class="text-sm opacity-80">Earn points, unlock achievements, track progress</p>
+            </div>
+            <div class="glass-effect rounded-lg p-6 hover-lift">
+                <div class="text-3xl mb-3">🧪</div>
+                <h3 class="font-bold mb-2">Interactive Coding</h3>
+                <p class="text-sm opacity-80">Practice with real code in a safe environment</p>
+            </div>
+        </div>
+        
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <a href="{{ url_for('introduction') }}" class="bg-white text-purple-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                ✨ Discover Pythia
+            </a>
+            <a href="{{ url_for('register') }}" class="bg-green-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                🚀 Start Learning Free
+            </a>
+            <a href="{{ url_for('login') }}" class="border-2 border-white text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-purple-600 transition-all duration-300">
+                🔑 Sign In
+            </a>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <i class="fas fa-chevron-down text-2xl opacity-70"></i>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-20 bg-white dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Section Header -->
+        <div class="text-center mb-16 animate-on-scroll">
+            <h2 class="text-4xl font-bold mb-4 text-gray-900 dark:text-white">
+                ✨ What Makes Us Special
+            </h2>
+            <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                Inspired by the best educational platforms, we've combined proven learning methods 
+                with cutting-edge technology to create the ultimate Python learning experience.
+            </p>
+        </div>
+        
+        <!-- Features Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 rounded-xl p-6 hover-lift animate-on-scroll">
+                <div class="text-4xl mb-4">📖</div>
+                <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Progressive Learning Path</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                    Structured 30+ day curriculum taking you from complete beginner to Python expert with clear milestones.
+                </p>
+                <div class="flex items-center text-sm text-blue-600 dark:text-blue-400">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span>Beginner to Expert</span>
+                </div>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 rounded-xl p-6 hover-lift animate-on-scroll">
+                <div class="text-4xl mb-4">🏆</div>
+                <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Achievement System</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                    Earn points, unlock badges, and maintain learning streaks. Gamification keeps you motivated!
+                </p>
+                <div class="flex items-center text-sm text-green-600 dark:text-green-400">
+                    <i class="fas fa-trophy mr-2"></i>
+                    <span>8+ Achievements</span>
+                </div>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 rounded-xl p-6 hover-lift animate-on-scroll">
+                <div class="text-4xl mb-4">🧪</div>
+                <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Code Playground</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                    Practice Python in a safe, interactive environment with real-time feedback and code sharing.
+                </p>
+                <div class="flex items-center text-sm text-purple-600 dark:text-purple-400">
+                    <i class="fas fa-code mr-2"></i>
+                    <span>Safe Execution</span>
+                </div>
+            </div>
+            
+            <!-- Feature 4 -->
+            <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900 dark:to-yellow-800 rounded-xl p-6 hover-lift animate-on-scroll">
+                <div class="text-4xl mb-4">🎯</div>
+                <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Interactive Quizzes</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                    Test your knowledge with multiple question types, instant feedback, and detailed explanations.
+                </p>
+                <div class="flex items-center text-sm text-yellow-600 dark:text-yellow-400">
+                    <i class="fas fa-question-circle mr-2"></i>
+                    <span>Multiple Formats</span>
+                </div>
+            </div>
+            
+            <!-- Feature 5 -->
+            <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900 dark:to-red-800 rounded-xl p-6 hover-lift animate-on-scroll">
+                <div class="text-4xl mb-4">⚔️</div>
+                <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Coding Challenges</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                    Solve algorithmic problems with automated testing, hints, and multiple difficulty levels.
+                </p>
+                <div class="flex items-center text-sm text-red-600 dark:text-red-400">
+                    <i class="fas fa-brain mr-2"></i>
+                    <span>Auto-graded</span>
+                </div>
+            </div>
+            
+            <!-- Feature 6 -->
+            <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900 dark:to-indigo-800 rounded-xl p-6 hover-lift animate-on-scroll">
+                <div class="text-4xl mb-4">📊</div>
+                <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Progress Analytics</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                    Detailed statistics, learning patterns, and personalized recommendations for improvement.
+                </p>
+                <div class="flex items-center text-sm text-indigo-600 dark:text-indigo-400">
+                    <i class="fas fa-chart-line mr-2"></i>
+                    <span>Detailed Insights</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Inspiration Section -->
+<section class="py-20 bg-gray-50 dark:bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16 animate-on-scroll">
+            <h2 class="text-4xl font-bold mb-4 text-gray-900 dark:text-white">
+                🌟 Inspired by the Best
+            </h2>
+            <p class="text-xl text-gray-600 dark:text-gray-400">
+                We've analyzed top educational platforms to bring you the best features
+            </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white dark:bg-gray-700 rounded-lg p-6 text-center hover-lift animate-on-scroll">
+                <div class="text-3xl mb-3">📚</div>
+                <h3 class="font-bold mb-2">30-Days-Of-Python</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">46.9k stars</p>
+                <p class="text-xs mt-2">Structured learning approach</p>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-700 rounded-lg p-6 text-center hover-lift animate-on-scroll">
+                <div class="text-3xl mb-3">🎮</div>
+                <h3 class="font-bold mb-2">Interactive Tutorials</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">4.3k stars</p>
+                <p class="text-xs mt-2">Interactive execution</p>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-700 rounded-lg p-6 text-center hover-lift animate-on-scroll">
+                <div class="text-3xl mb-3">🏆</div>
+                <h3 class="font-bold mb-2">Duolingo</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Top rated</p>
+                <p class="text-xs mt-2">Gamification design</p>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-700 rounded-lg p-6 text-center hover-lift animate-on-scroll">
+                <div class="text-3xl mb-3">💻</div>
+                <h3 class="font-bold mb-2">Codecademy</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Popular</p>
+                <p class="text-xs mt-2">Interactive coding</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-20 gradient-bg text-white">
+    <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 animate-on-scroll">
+        <h2 class="text-4xl font-bold mb-6">Ready to Become a Python Expert?</h2>
+        <p class="text-xl mb-8 opacity-90">
+            Join thousands of learners who have transformed their careers with our comprehensive Python program.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <a href="{{ url_for('introduction') }}" class="bg-yellow-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-yellow-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                ✨ Take the Tour
+            </a>
+            <a href="{{ url_for('register') }}" class="bg-white text-purple-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                🚀 Start Learning Now
+            </a>
+            <a href="{{ url_for('login') }}" class="border-2 border-white text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-purple-600 transition-all duration-300">
+                🔑 Already a Member?
+            </a>
+        </div>
+        
+        <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div>
+                <div class="text-3xl font-bold">30+</div>
+                <div class="text-sm opacity-80">Days of Content</div>
+            </div>
+            <div>
+                <div class="text-3xl font-bold">100+</div>
+                <div class="text-sm opacity-80">Exercises</div>
+            </div>
+            <div>
+                <div class="text-3xl font-bold">8+</div>
+                <div class="text-sm opacity-80">Achievements</div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function scrollToFeatures() {
+        document.getElementById('features').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // Parallax effect for hero section
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const parallax = document.querySelector('.gradient-bg');
+        const speed = scrolled * 0.5;
+        
+        if (parallax) {
+            parallax.style.transform = `translateY(${speed}px)`;
+        }
+    });
+    
+    // Counter animation
+    function animateCounters() {
+        const counters = document.querySelectorAll('.text-3xl.font-bold');
+        
+        counters.forEach(counter => {
+            const target = parseInt(counter.textContent.replace('+', ''));
+            let current = 0;
+            const increment = target / 50;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    counter.textContent = target + '+';
+                    clearInterval(timer);
+                } else {
+                    counter.textContent = Math.floor(current) + '+';
+                }
+            }, 50);
+        });
+    }
+    
+    // Trigger counter animation when section comes into view
+    const statsSection = document.querySelector('.gradient-bg:last-child');
+    if (statsSection) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+        
+        observer.observe(statsSection);
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,956 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Python Learning Program{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Welcome Header -->
+    <div class="mb-8 animate-fade-in">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                    Welcome back, {{ user }}! 👋
+                </h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">
+                    Ready to continue your Python journey?
+                </p>
+            </div>
+            <div class="hidden md:flex items-center space-x-4">
+                <div class="text-right">
+                    <div class="text-sm text-gray-500 dark:text-gray-400">Current Streak</div>
+                    <div class="text-2xl font-bold text-orange-500">{{ stats.streak or 0 }}🔥</div>
+                </div>
+                <!-- Tour Help Button -->
+                <button onclick="restartDashboardTour()" class="settings-menu bg-blue-100 hover:bg-blue-200 text-blue-600 px-4 py-2 rounded-lg text-sm font-medium transition-colors mr-2">
+                    <i class="fas fa-question-circle mr-2"></i>Take Tour
+                </button>
+                <!-- Logout Button for Testing -->
+                <a href="{{ url_for('logout') }}" class="bg-red-100 hover:bg-red-200 text-red-600 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="stats-overview grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Level Card -->
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white hover-lift animate-slide-up">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-blue-100 text-sm font-medium">Level</p>
+                    <p class="text-3xl font-bold">{{ stats.level or 1 }}</p>
+                </div>
+                <div class="text-4xl opacity-80">🏆</div>
+            </div>
+            <div class="mt-4">
+                <div class="bg-blue-400 bg-opacity-30 rounded-full h-2">
+                    <div class="bg-white rounded-full h-2 transition-all duration-500" 
+                         style="width: {{ ((stats.points or 0) % 100) }}%"></div>
+                </div>
+                <p class="text-blue-100 text-xs mt-1">{{ stats.points_to_next_level or 0 }} points to next level</p>
+            </div>
+        </div>
+        
+        <!-- Points Card -->
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white hover-lift animate-slide-up" style="animation-delay: 0.1s">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-purple-100 text-sm font-medium">Points</p>
+                    <p class="text-3xl font-bold">{{ stats.points or 0 }}</p>
+                </div>
+                <div class="text-4xl opacity-80">💎</div>
+            </div>
+            <div class="mt-4">
+                <p class="text-purple-100 text-sm">
+                    <i class="fas fa-arrow-up mr-1"></i>
+                    Keep learning to earn more!
+                </p>
+            </div>
+        </div>
+        
+        <!-- Lessons Card -->
+        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white hover-lift animate-slide-up" style="animation-delay: 0.2s">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-green-100 text-sm font-medium">Lessons</p>
+                    <p class="text-3xl font-bold">{{ stats.lessons_completed or 0 }}<span class="text-lg">/50</span></p>
+                </div>
+                <div class="text-4xl opacity-80">📚</div>
+            </div>
+            <div class="mt-4">
+                <div class="bg-green-400 bg-opacity-30 rounded-full h-2">
+                    <div class="bg-white rounded-full h-2 transition-all duration-500"
+                         style="width: {{ stats.lesson_completion_percentage or 0 }}%"></div>
+                </div>
+                <p class="text-green-100 text-xs mt-1">{{ "%.1f"|format(stats.lesson_completion_percentage or 0) }}% complete • 5 Learning Tracks</p>
+            </div>
+        </div>
+        
+        <!-- Challenges Card -->
+        <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 text-white hover-lift animate-slide-up" style="animation-delay: 0.3s">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-orange-100 text-sm font-medium">Challenges</p>
+                    <p class="text-3xl font-bold">{{ stats.challenges_completed or 0 }}</p>
+                </div>
+                <div class="text-4xl opacity-80">⚔️</div>
+            </div>
+            <div class="mt-4">
+                <p class="text-orange-100 text-sm">
+                    <i class="fas fa-brain mr-1"></i>
+                    Problem solving skills
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column -->
+        <div class="lg:col-span-2 space-y-8">
+            <!-- Progress Overview -->
+            <div class="progress-chart bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 animate-slide-up">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+                        📈 Your Progress
+                    </h2>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">
+                        {{ stats.days_since_start or 0 }} days learning
+                    </span>
+                </div>
+                
+                <!-- Overall Progress -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Overall Progress</span>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">{{ "%.1f"|format(stats.lesson_completion_percentage or 0) }}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                        <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-1000" 
+                             style="width: {{ stats.lesson_completion_percentage or 0 }}%"></div>
+                    </div>
+                </div>
+                
+                <!-- Skills Breakdown -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs text-gray-600 dark:text-gray-400">Quiz Average</span>
+                            <span class="text-xs font-medium">{{ "%.0f"|format(stats.average_quiz_score or 0) }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: {{ stats.average_quiz_score or 0 }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs text-gray-600 dark:text-gray-400">Playground Usage</span>
+                            <span class="text-xs font-medium">{{ stats.playground_uses or 0 }}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="bg-purple-500 h-2 rounded-full" style="width: {{ (stats.playground_uses or 0) * 5 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="quick-actions bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 animate-slide-up">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">
+                    ⚡ Quick Actions
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <a href="{{ url_for('lessons') }}" class="group bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 rounded-lg p-4 hover:from-blue-100 hover:to-blue-200 dark:hover:from-blue-800 dark:hover:to-blue-700 transition-all duration-200 hover-lift">
+                        <div class="flex items-center">
+                            <div class="text-2xl mr-3">📚</div>
+                            <div>
+                                <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                                    Continue Learning
+                                </h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Resume your lessons
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="{{ url_for('challenges') }}" class="group bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900 dark:to-orange-800 rounded-lg p-4 hover:from-orange-100 hover:to-orange-200 dark:hover:from-orange-800 dark:hover:to-orange-700 transition-all duration-200 hover-lift">
+                        <div class="flex items-center">
+                            <div class="text-2xl mr-3">🎮</div>
+                            <div>
+                                <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400">
+                                    Take Challenge
+                                </h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Test your skills
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="{{ url_for('playground') }}" class="group bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 rounded-lg p-4 hover:from-purple-100 hover:to-purple-200 dark:hover:from-purple-800 dark:hover:to-purple-700 transition-all duration-200 hover-lift">
+                        <div class="flex items-center">
+                            <div class="text-2xl mr-3">🧪</div>
+                            <div>
+                                <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400">
+                                    Code Playground
+                                </h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Experiment with code
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="{{ url_for('quizzes') }}" class="group bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 rounded-lg p-4 hover:from-green-100 hover:to-green-200 dark:hover:from-green-800 dark:hover:to-green-700 transition-all duration-200 hover-lift">
+                        <div class="flex items-center">
+                            <div class="text-2xl mr-3">🎯</div>
+                            <div>
+                                <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400">
+                                    Take Quiz
+                                </h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Test knowledge
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="space-y-8">
+            <!-- Recent Achievements -->
+            <div class="achievements-section bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 animate-slide-up">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">
+                    🏆 Recent Achievements
+                </h2>
+                
+                {% if profile.achievements %}
+                    <div class="space-y-3">
+                        {% for achievement_id in profile.achievements[-3:] %}
+                        <div class="flex items-center p-3 bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-900 dark:to-yellow-800 rounded-lg achievement-glow">
+                            <div class="text-2xl mr-3">🎉</div>
+                            <div>
+                                <h3 class="font-semibold text-gray-900 dark:text-white text-sm">
+                                    {{ achievement_id.replace('_', ' ').title() }}
+                                </h3>
+                                <p class="text-xs text-gray-600 dark:text-gray-400">
+                                    Achievement unlocked!
+                                </p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-8">
+                        <div class="text-4xl mb-3">🎯</div>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Complete lessons to unlock your first achievement!
+                        </p>
+                    </div>
+                {% endif %}
+                
+                <a href="{{ url_for('achievements') }}" class="block mt-4 text-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
+                    View All Achievements →
+                </a>
+            </div>
+            
+            <!-- Learning Streak -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 animate-slide-up">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">
+                    🔥 Learning Streak
+                </h2>
+                
+                <div class="text-center">
+                    <div class="text-5xl font-bold text-orange-500 mb-2">
+                        {{ stats.streak or 0 }}
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                        {{ 'day' if (stats.streak or 0) == 1 else 'days' }} in a row
+                    </p>
+                    
+                    <!-- Streak Calendar -->
+                    <div class="grid grid-cols-7 gap-1 mb-4">
+                        {% for i in range(7) %}
+                        <div class="w-6 h-6 rounded {{ 'bg-orange-500' if i < (stats.streak or 0) else 'bg-gray-200 dark:bg-gray-700' }}"></div>
+                        {% endfor %}
+                    </div>
+                    
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                        Keep learning daily to maintain your streak!
+                    </p>
+                </div>
+            </div>
+            
+            <!-- AI Assistant -->
+            <div class="ai-assistant bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl p-6 text-white animate-slide-up mb-8">
+                <h2 class="text-xl font-bold mb-4">
+                    🤖 Pythia AI Assistant
+                </h2>
+                <p class="text-purple-100 text-sm mb-4">
+                    Your personal AI tutor is ready to help! Ask questions, get hints, or request explanations.
+                </p>
+                <button class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <i class="fas fa-robot mr-2"></i>Chat with Pythia
+                </button>
+            </div>
+
+            <!-- Community Section -->
+            <div class="community-section bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 animate-slide-up mb-8">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                    👥 Learning Community
+                </h2>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                    Connect with other learners and share your progress!
+                </p>
+                <div class="flex space-x-2">
+                    <button class="bg-blue-100 hover:bg-blue-200 text-blue-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-users mr-1"></i>Join Community
+                    </button>
+                    <button class="bg-green-100 hover:bg-green-200 text-green-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-share mr-1"></i>Share Progress
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lessons Section -->
+            <div class="lessons-section bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 animate-slide-up mb-8">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                    📚 Your Learning Path
+                </h2>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                    Personalized lessons adapted to your skill level and goals.
+                </p>
+                <a href="{{ url_for('lessons') }}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <i class="fas fa-book mr-2"></i>View All Lessons
+                </a>
+            </div>
+
+            <!-- Next Steps -->
+            <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-6 text-white animate-slide-up">
+                <h2 class="text-xl font-bold mb-4">
+                    🎯 Recommended Next Steps
+                </h2>
+                
+                <div class="space-y-3">
+                    {% if (stats.lessons_completed or 0) < 5 %}
+                    <div class="flex items-center">
+                        <i class="fas fa-book mr-3"></i>
+                        <span class="text-sm">Complete 5 lessons to unlock challenges</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if (stats.quizzes_taken or 0) == 0 %}
+                    <div class="flex items-center">
+                        <i class="fas fa-question-circle mr-3"></i>
+                        <span class="text-sm">Take your first quiz</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if (stats.playground_uses or 0) < 5 %}
+                    <div class="flex items-center">
+                        <i class="fas fa-flask mr-3"></i>
+                        <span class="text-sm">Experiment in the playground</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="flex items-center">
+                        <i class="fas fa-calendar-check mr-3"></i>
+                        <span class="text-sm">Learn daily to build your streak</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Dashboard Tour Styles -->
+<style>
+/* Tour Overlay Styles */
+.tour-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9998;
+    display: none;
+}
+
+.tour-spotlight {
+    position: absolute;
+    border: 3px solid #667eea;
+    border-radius: 8px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+    transition: all 0.3s ease;
+}
+
+.tour-tooltip {
+    position: absolute;
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 320px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+    transform: scale(0);
+    transition: all 0.3s ease;
+}
+
+.tour-tooltip.active {
+    transform: scale(1);
+}
+
+.tour-tooltip::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border: 10px solid transparent;
+}
+
+.tour-tooltip.bottom::before {
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-bottom-color: white;
+}
+
+.tour-tooltip.top::before {
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-top-color: white;
+}
+
+.tour-tooltip.left::before {
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-left-color: white;
+}
+
+.tour-tooltip.right::before {
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-right-color: white;
+}
+
+.pulse-ring {
+    animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+.bounce-gentle {
+    animation: bounce-gentle 2s infinite;
+}
+
+@keyframes bounce-gentle {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-5px);
+    }
+    60% {
+        transform: translateY(-3px);
+    }
+}
+</style>
+
+<!-- Tour HTML Elements -->
+<div id="tourOverlay" class="tour-overlay"></div>
+<div id="tourSpotlight" class="tour-spotlight" style="display: none;"></div>
+
+<div id="tourTooltip" class="tour-tooltip">
+    <div class="flex items-start justify-between mb-3">
+        <div class="flex items-center">
+            <div id="tourIcon" class="text-2xl mr-3">🎯</div>
+            <h3 id="tourTitle" class="font-bold text-lg text-gray-800">Welcome to Your Dashboard!</h3>
+        </div>
+        <button id="tourClose" class="text-gray-400 hover:text-gray-600 text-xl">×</button>
+    </div>
+
+    <p id="tourDescription" class="text-gray-600 mb-4">
+        Let me show you around your new Python learning headquarters!
+    </p>
+
+    <div class="flex items-center justify-between">
+        <div class="flex space-x-2">
+            <div class="tour-progress-dots flex space-x-1">
+                <!-- Progress dots will be added dynamically -->
+            </div>
+        </div>
+
+        <div class="flex space-x-2">
+            <button id="tourPrev" class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium" style="display: none;">
+                <i class="fas fa-arrow-left mr-1"></i>Back
+            </button>
+            <button id="tourNext" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+                Next <i class="fas fa-arrow-right ml-1"></i>
+            </button>
+            <button id="tourFinish" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium" style="display: none;">
+                <i class="fas fa-check mr-1"></i>Got it!
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="tourStartModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="display: none;">
+    <div class="bg-white rounded-xl p-8 max-w-md mx-4 text-center">
+        <div class="bounce-gentle text-6xl mb-4">🎯</div>
+        <h2 class="text-2xl font-bold mb-4 text-gray-800">Ready for Your Dashboard Tour?</h2>
+        <p class="text-gray-600 mb-6">
+            Let me show you around your new Python learning headquarters!
+            This quick tour will help you discover all the amazing features waiting for you.
+        </p>
+
+        <div class="bg-blue-50 rounded-lg p-4 mb-6">
+            <div class="flex items-center justify-center mb-2">
+                <i class="fas fa-clock text-blue-600 mr-2"></i>
+                <span class="font-medium text-blue-800">Just 2 minutes</span>
+            </div>
+            <p class="text-sm text-blue-700">Quick tour of 8 key features</p>
+        </div>
+
+        <div class="flex space-x-3">
+            <button id="skipTour" class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium">
+                Skip for Now
+            </button>
+            <button id="startTour" class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+                <i class="fas fa-play mr-2"></i>Start Tour
+            </button>
+        </div>
+
+        <p class="text-xs text-gray-500 mt-4">
+            You can always access this tour later from the help menu
+        </p>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Dashboard Tour Class
+    class DashboardTour {
+        constructor() {
+            this.currentStep = 0;
+            this.steps = [
+                {
+                    target: '.stats-overview',
+                    title: '📊 Your Learning Stats',
+                    description: 'Track your progress with real-time statistics. See completed lessons, earned points, and your current learning streak!',
+                    icon: '📊',
+                    position: 'bottom'
+                },
+                {
+                    target: '.quick-actions',
+                    title: '⚡ Quick Actions',
+                    description: 'Jump straight into learning! Start a new lesson, practice in the playground, or take a quiz.',
+                    icon: '⚡',
+                    position: 'bottom'
+                },
+                {
+                    target: '.lessons-section',
+                    title: '📚 Your Lessons',
+                    description: 'Access your personalized learning path. Lessons adapt to your skill level and learning goals.',
+                    icon: '📚',
+                    position: 'top'
+                },
+                {
+                    target: '.achievements-section',
+                    title: '🏆 Achievements',
+                    description: 'Unlock badges and achievements as you progress. Gamification makes learning addictive!',
+                    icon: '🏆',
+                    position: 'top'
+                },
+                {
+                    target: '.ai-assistant',
+                    title: '🤖 Pythia AI Assistant',
+                    description: 'Your personal AI tutor is always here to help. Ask questions, get hints, or request explanations!',
+                    icon: '🤖',
+                    position: 'left'
+                },
+                {
+                    target: '.progress-chart',
+                    title: '📈 Progress Visualization',
+                    description: 'See your learning journey visualized. Track daily activity and identify areas for improvement.',
+                    icon: '📈',
+                    position: 'left'
+                },
+                {
+                    target: '.community-section',
+                    title: '👥 Learning Community',
+                    description: 'Connect with other learners, share your progress, and get motivated by the community!',
+                    icon: '👥',
+                    position: 'top'
+                },
+                {
+                    target: '.settings-menu',
+                    title: '⚙️ Personalization',
+                    description: 'Customize your learning experience. Adjust difficulty, set goals, and configure notifications.',
+                    icon: '⚙️',
+                    position: 'bottom'
+                }
+            ];
+
+            this.init();
+        }
+
+        init() {
+            this.createProgressDots();
+            this.bindEvents();
+
+            // Check if user should see tour automatically
+            {% if show_tour %}
+            this.showStartModal();
+            {% else %}
+            // Check if it's first time for existing users
+            if (!localStorage.getItem('dashboardTourCompleted')) {
+                this.showStartModal();
+            }
+            {% endif %}
+        }
+
+        showStartModal() {
+            document.getElementById('tourStartModal').style.display = 'flex';
+        }
+
+        hideStartModal() {
+            document.getElementById('tourStartModal').style.display = 'none';
+        }
+
+        createProgressDots() {
+            const container = document.querySelector('.tour-progress-dots');
+            container.innerHTML = '';
+
+            this.steps.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = `w-2 h-2 rounded-full ${index === 0 ? 'bg-blue-600' : 'bg-gray-300'}`;
+                container.appendChild(dot);
+            });
+        }
+
+        updateProgressDots() {
+            const dots = document.querySelectorAll('.tour-progress-dots > div');
+            dots.forEach((dot, index) => {
+                dot.className = `w-2 h-2 rounded-full ${index <= this.currentStep ? 'bg-blue-600' : 'bg-gray-300'}`;
+            });
+        }
+
+        bindEvents() {
+            document.getElementById('startTour').addEventListener('click', () => {
+                this.hideStartModal();
+                this.startTour();
+            });
+
+            document.getElementById('skipTour').addEventListener('click', () => {
+                this.hideStartModal();
+                this.completeTour();
+            });
+
+            document.getElementById('tourNext').addEventListener('click', () => {
+                this.nextStep();
+            });
+
+            document.getElementById('tourPrev').addEventListener('click', () => {
+                this.prevStep();
+            });
+
+            document.getElementById('tourFinish').addEventListener('click', () => {
+                this.completeTour();
+            });
+
+            document.getElementById('tourClose').addEventListener('click', () => {
+                this.endTour();
+            });
+
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (this.isActive()) {
+                    if (e.key === 'ArrowRight' || e.key === 'Enter') {
+                        this.nextStep();
+                    } else if (e.key === 'ArrowLeft') {
+                        this.prevStep();
+                    } else if (e.key === 'Escape') {
+                        this.endTour();
+                    }
+                }
+            });
+        }
+
+        isActive() {
+            return document.getElementById('tourOverlay').style.display === 'block';
+        }
+
+        startTour() {
+            this.currentStep = 0;
+            this.showStep();
+        }
+
+        showStep() {
+            const step = this.steps[this.currentStep];
+            const target = document.querySelector(step.target);
+
+            if (!target) {
+                console.warn(`Tour target not found: ${step.target}`);
+                this.nextStep();
+                return;
+            }
+
+            // Show overlay
+            document.getElementById('tourOverlay').style.display = 'block';
+
+            // Position spotlight
+            this.positionSpotlight(target);
+
+            // Position and show tooltip
+            this.positionTooltip(target, step);
+
+            // Update tooltip content
+            this.updateTooltipContent(step);
+
+            // Update navigation buttons
+            this.updateNavigationButtons();
+
+            // Update progress dots
+            this.updateProgressDots();
+
+            // Add pulse effect to target
+            this.addPulseEffect(target);
+        }
+
+        positionSpotlight(target) {
+            const rect = target.getBoundingClientRect();
+            const spotlight = document.getElementById('tourSpotlight');
+
+            spotlight.style.display = 'block';
+            spotlight.style.left = (rect.left - 10) + 'px';
+            spotlight.style.top = (rect.top - 10) + 'px';
+            spotlight.style.width = (rect.width + 20) + 'px';
+            spotlight.style.height = (rect.height + 20) + 'px';
+        }
+
+        positionTooltip(target, step) {
+            const rect = target.getBoundingClientRect();
+            const tooltip = document.getElementById('tourTooltip');
+            const position = step.position || 'bottom';
+
+            tooltip.className = `tour-tooltip active ${position}`;
+
+            let left, top;
+
+            switch (position) {
+                case 'bottom':
+                    left = rect.left + (rect.width / 2) - 160;
+                    top = rect.bottom + 20;
+                    break;
+                case 'top':
+                    left = rect.left + (rect.width / 2) - 160;
+                    top = rect.top - 200;
+                    break;
+                case 'left':
+                    left = rect.left - 340;
+                    top = rect.top + (rect.height / 2) - 100;
+                    break;
+                case 'right':
+                    left = rect.right + 20;
+                    top = rect.top + (rect.height / 2) - 100;
+                    break;
+            }
+
+            // Ensure tooltip stays within viewport
+            left = Math.max(20, Math.min(left, window.innerWidth - 340));
+            top = Math.max(20, Math.min(top, window.innerHeight - 200));
+
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+        }
+
+        updateTooltipContent(step) {
+            document.getElementById('tourIcon').textContent = step.icon;
+            document.getElementById('tourTitle').textContent = step.title;
+            document.getElementById('tourDescription').textContent = step.description;
+        }
+
+        updateNavigationButtons() {
+            const prevBtn = document.getElementById('tourPrev');
+            const nextBtn = document.getElementById('tourNext');
+            const finishBtn = document.getElementById('tourFinish');
+
+            prevBtn.style.display = this.currentStep > 0 ? 'block' : 'none';
+
+            if (this.currentStep === this.steps.length - 1) {
+                nextBtn.style.display = 'none';
+                finishBtn.style.display = 'block';
+            } else {
+                nextBtn.style.display = 'block';
+                finishBtn.style.display = 'none';
+            }
+        }
+
+        addPulseEffect(target) {
+            // Remove existing pulse effects
+            document.querySelectorAll('.pulse-ring').forEach(el => {
+                el.classList.remove('pulse-ring');
+            });
+
+            // Add pulse effect to current target
+            target.classList.add('pulse-ring');
+        }
+
+        nextStep() {
+            if (this.currentStep < this.steps.length - 1) {
+                this.currentStep++;
+                this.showStep();
+            } else {
+                this.completeTour();
+            }
+        }
+
+        prevStep() {
+            if (this.currentStep > 0) {
+                this.currentStep--;
+                this.showStep();
+            }
+        }
+
+        completeTour() {
+            this.endTour();
+            localStorage.setItem('dashboardTourCompleted', 'true');
+
+            // Show completion celebration
+            this.showCompletionMessage();
+        }
+
+        endTour() {
+            document.getElementById('tourOverlay').style.display = 'none';
+            document.getElementById('tourSpotlight').style.display = 'none';
+            document.getElementById('tourTooltip').classList.remove('active');
+
+            // Remove pulse effects
+            document.querySelectorAll('.pulse-ring').forEach(el => {
+                el.classList.remove('pulse-ring');
+            });
+        }
+
+        showCompletionMessage() {
+            // Create and show a completion toast
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300';
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle text-xl mr-3"></i>
+                    <div>
+                        <div class="font-bold">Tour Complete! 🎉</div>
+                        <div class="text-sm opacity-90">You're ready to start learning!</div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+
+            // Animate in
+            setTimeout(() => {
+                toast.style.transform = 'translateX(0)';
+            }, 100);
+
+            // Animate out and remove
+            setTimeout(() => {
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // Public method to restart tour
+        restart() {
+            localStorage.removeItem('dashboardTourCompleted');
+            this.showStartModal();
+        }
+    }
+
+    // Initialize tour
+    window.dashboardTour = new DashboardTour();
+});
+
+// Global function to restart tour (called by the "Take Tour" button)
+function restartDashboardTour() {
+    if (window.dashboardTour) {
+        window.dashboardTour.restart();
+    }
+}
+
+// Original dashboard JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate progress bars
+    const progressBars = document.querySelectorAll('[style*="width:"]');
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 500);
+    });
+    
+    // Add hover effects to stat cards
+    const statCards = document.querySelectorAll('.hover-lift');
+    statCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+    
+    // Animate numbers counting up
+    function animateNumber(element, target, duration = 1000) {
+        const start = 0;
+        const increment = target / (duration / 16);
+        let current = start;
+        
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                element.textContent = target;
+                clearInterval(timer);
+            } else {
+                element.textContent = Math.floor(current);
+            }
+        }, 16);
+    }
+    
+    // Animate stat numbers
+    const statNumbers = document.querySelectorAll('.text-3xl.font-bold');
+    statNumbers.forEach(element => {
+        const target = parseInt(element.textContent);
+        if (!isNaN(target)) {
+            animateNumber(element, target);
+        }
+    });
+});
+</script>
+{% endblock %}

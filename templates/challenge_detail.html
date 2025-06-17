@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+
+{% block title %}{{ challenge.title }} - Python Learning Program{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Challenge Header -->
+    <div class="mb-8 animate-fade-in">
+        <div class="flex items-center justify-between">
+            <div>
+                <nav class="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                    <a href="{{ url_for('challenges') }}" class="hover:text-purple-600 dark:hover:text-purple-400">
+                        🎮 Challenges
+                    </a>
+                    <span class="mx-2">›</span>
+                    <span>{{ challenge.title }}</span>
+                </nav>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                    {{ challenge.title }}
+                </h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">
+                    {{ challenge.description }}
+                </p>
+            </div>
+            
+            <!-- Challenge Stats -->
+            <div class="text-right">
+                <div class="flex items-center text-purple-600 dark:text-purple-400 mb-2">
+                    <i class="fas fa-star mr-2"></i>
+                    <span class="font-medium">{{ challenge.get('points', 10) }} Points</span>
+                </div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    Difficulty: {{ challenge.get('difficulty', 'easy').title() }}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Challenge Content -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-8 animate-slide-up">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            🎯 Challenge Description
+        </h2>
+        
+        <div class="prose dark:prose-invert max-w-none mb-8">
+            <p class="text-lg text-gray-700 dark:text-gray-300">
+                {{ challenge.description }}
+            </p>
+            
+            <!-- Example if available -->
+            {% if challenge.get('example') %}
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mt-6 mb-3">
+                📝 Example:
+            </h3>
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                <pre class="text-sm"><code>{{ challenge.example }}</code></pre>
+            </div>
+            {% endif %}
+            
+            <!-- Requirements -->
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mt-6 mb-3">
+                ✅ Requirements:
+            </h3>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-1">
+                <li>Write a Python function that solves the problem</li>
+                <li>Your solution should handle edge cases</li>
+                <li>Code should be clean and readable</li>
+                <li>Test your solution with different inputs</li>
+            </ul>
+        </div>
+        
+        <!-- Code Editor -->
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                💻 Your Solution:
+            </h3>
+            <div class="bg-gray-900 rounded-lg overflow-hidden">
+                <div class="bg-gray-800 px-4 py-2 text-gray-300 text-sm border-b border-gray-700">
+                    Python Code Editor
+                </div>
+                <textarea id="code-editor" 
+                          class="w-full h-64 bg-gray-900 text-green-400 p-4 font-mono text-sm resize-none focus:outline-none"
+                          placeholder="# Write your solution here
+def solve_challenge():
+    # Your code goes here
+    pass
+
+# Test your solution
+result = solve_challenge()
+print(result)"></textarea>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex space-x-4 mb-6">
+            <button id="run-code-btn" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+                <i class="fas fa-play mr-2"></i>Run Code
+            </button>
+            <button id="submit-btn" class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors">
+                <i class="fas fa-check mr-2"></i>Submit Solution
+            </button>
+            <button id="hint-btn" class="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors">
+                <i class="fas fa-lightbulb mr-2"></i>Get Hint
+            </button>
+            <button id="reset-btn" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors">
+                <i class="fas fa-undo mr-2"></i>Reset
+            </button>
+        </div>
+        
+        <!-- Output Section -->
+        <div id="output-section" class="hidden">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                📤 Output:
+            </h3>
+            <div id="code-output" class="bg-black text-green-400 p-4 rounded-lg font-mono text-sm min-h-24 whitespace-pre-wrap">
+                <!-- Output will appear here -->
+            </div>
+        </div>
+        
+        <!-- Hint Section -->
+        <div id="hint-section" class="hidden mt-6">
+            <div class="bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
+                <h3 class="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
+                    💡 Hint:
+                </h3>
+                <p id="hint-text" class="text-yellow-700 dark:text-yellow-300">
+                    <!-- Hint will appear here -->
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navigation -->
+    <div class="flex items-center justify-between animate-slide-up">
+        <a href="{{ url_for('challenges') }}" class="flex items-center px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Challenges
+        </a>
+        
+        <div class="flex space-x-4">
+            <a href="{{ url_for('playground') }}" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+                <i class="fas fa-code mr-2"></i>
+                Open Playground
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const codeEditor = document.getElementById('code-editor');
+    const runCodeBtn = document.getElementById('run-code-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    const hintBtn = document.getElementById('hint-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const outputSection = document.getElementById('output-section');
+    const codeOutput = document.getElementById('code-output');
+    const hintSection = document.getElementById('hint-section');
+    const hintText = document.getElementById('hint-text');
+    
+    // Sample hints for different challenges
+    const hints = {
+        'challenge_1': "Use the print() function to display text. Remember to put your text in quotes!",
+        'challenge_2': "Create variables using the = operator. For example: name = 'Python'",
+        'challenge_3': "Use basic math operators like +, -, *, / to solve calculations."
+    };
+    
+    // Run Code functionality
+    runCodeBtn.addEventListener('click', function() {
+        const code = codeEditor.value;
+        
+        if (!code.trim()) {
+            showToast('Please write some code first!', 'warning');
+            return;
+        }
+        
+        outputSection.classList.remove('hidden');
+        codeOutput.textContent = 'Running code...';
+        
+        // Simulate code execution (in a real app, this would call the backend)
+        setTimeout(() => {
+            try {
+                // Simple simulation - in reality, this would be sent to the server
+                if (code.includes('print(')) {
+                    const printMatches = code.match(/print\(([^)]+)\)/g);
+                    let output = '';
+                    if (printMatches) {
+                        printMatches.forEach(match => {
+                            const content = match.match(/print\(([^)]+)\)/)[1];
+                            output += content.replace(/['"]/g, '') + '\n';
+                        });
+                    }
+                    codeOutput.textContent = output || 'Code executed successfully!';
+                } else {
+                    codeOutput.textContent = 'Code executed successfully! (No output)';
+                }
+                codeOutput.style.color = '#00ff00';
+            } catch (error) {
+                codeOutput.textContent = 'Error: ' + error.message;
+                codeOutput.style.color = '#ff6b6b';
+            }
+        }, 1000);
+    });
+    
+    // Submit Solution functionality
+    submitBtn.addEventListener('click', function() {
+        const code = codeEditor.value;
+        
+        if (!code.trim()) {
+            showToast('Please write some code first!', 'warning');
+            return;
+        }
+        
+        // Simulate submission
+        showToast('Solution submitted! 🎉', 'success');
+        
+        // In a real app, this would send the code to the server for testing
+        setTimeout(() => {
+            showToast('Challenge completed! +{{ challenge.get("points", 10) }} points', 'success');
+        }, 2000);
+    });
+    
+    // Hint functionality
+    hintBtn.addEventListener('click', function() {
+        const challengeId = '{{ challenge.id }}';
+        const hint = hints[challengeId] || "Break down the problem into smaller steps and solve each part one by one.";
+        
+        hintText.textContent = hint;
+        hintSection.classList.remove('hidden');
+        
+        // Scroll to hint
+        hintSection.scrollIntoView({ behavior: 'smooth' });
+    });
+    
+    // Reset functionality
+    resetBtn.addEventListener('click', function() {
+        if (confirm('Are you sure you want to reset your code? This will clear everything you\'ve written.')) {
+            codeEditor.value = `# Write your solution here
+def solve_challenge():
+    # Your code goes here
+    pass
+
+# Test your solution
+result = solve_challenge()
+print(result)`;
+            outputSection.classList.add('hidden');
+            hintSection.classList.add('hidden');
+            showToast('Code reset!', 'info');
+        }
+    });
+    
+    // Auto-resize textarea
+    codeEditor.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.max(256, this.scrollHeight) + 'px';
+    });
+    
+    // Keyboard shortcuts
+    codeEditor.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + Enter to run code
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            runCodeBtn.click();
+        }
+        
+        // Tab for indentation
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            
+            this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+            this.selectionStart = this.selectionEnd = start + 4;
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,70 @@
+{
+  "id": "easy_002",
+  "title": "Sum Two Numbers",
+  "category": "math",
+  "difficulty": "easy",
+  "description": "Write a function that takes two numbers and returns their sum",
+  "function_name": "sum_two_numbers",
+  "parameters": [
+    "a: int",
+    "b: int"
+  ],
+  "return_type": "int",
+  "examples": [
+    {
+      "input": [
+        3,
+        5
+      ],
+      "output": 8
+    },
+    {
+      "input": [
+        -1,
+        1
+      ],
+      "output": 0
+    }
+  ],
+  "test_cases": [
+    {
+      "input": [
+        3,
+        5
+      ],
+      "expected": 8,
+      "hidden": false
+    },
+    {
+      "input": [
+        -1,
+        1
+      ],
+      "expected": 0,
+      "hidden": false
+    },
+    {
+      "input": [
+        0,
+        0
+      ],
+      "expected": 0,
+      "hidden": true
+    },
+    {
+      "input": [
+        100,
+        200
+      ],
+      "expected": 300,
+      "hidden": true
+    }
+  ],
+  "hints": [
+    "Use the + operator to add two numbers",
+    "The function should return the result, not print it"
+  ],
+  "time_limit": 1,
+  "memory_limit": 128,
+  "points": 15
+}
