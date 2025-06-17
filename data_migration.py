@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 """
 Data Migration and Standardization for Python Learning Platform
-Migrates legacy user data to standardized schema
+Migrates legacy user data to standardized schema with database safety
 """
 
 import json
 import os
 from datetime import datetime
 from typing import Dict, List, Optional, Any
+
+# Import our enhanced database management
+from core.database_manager import db_manager
+from core.error_handler import error_handler
 
 class UserDataMigration:
     """Handles migration of user data to standardized format"""

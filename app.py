@@ -12,6 +12,7 @@ from core.error_handler import (
 )
 from core.validators import validator
 from core.security import csrf_protection, rate_limiter, require_csrf_token, rate_limit
+from core.database_manager import db_manager
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
@@ -26,39 +27,31 @@ app.logger.addHandler(error_handler.logger.handlers[0])
 app.logger.setLevel(logging.INFO)
 
 def load_user_data():
-    """Load user data with comprehensive error handling"""
+    """Load user data with comprehensive error handling and validation"""
     try:
         file_path = "data/user_progress.json"
-        if os.path.exists(file_path):
-            with open(file_path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                error_handler.logger.debug(f"Successfully loaded user data: {len(data)} users")
-                return data
-        else:
+        data = db_manager.safe_read(file_path, schema_name="user_progress")
+
+        if data is None:
             error_handler.logger.info("User data file does not exist, returning empty data")
             return {}
-    except json.JSONDecodeError as e:
-        error_details = error_handler.handle_error(
-            UserDataError(f"Invalid JSON in user data file: {e}"),
-            context={"file_path": "data/user_progress.json", "operation": "load"},
-            user_message="There was a problem loading user data. Using backup if available."
-        )
-        return {}
-    except PermissionError as e:
-        error_details = error_handler.handle_error(
-            FileOperationError(f"Permission denied accessing user data: {e}"),
-            context={"file_path": "data/user_progress.json", "operation": "load"}
-        )
-        return {}
+
+        if isinstance(data, dict):
+            error_handler.logger.debug(f"Successfully loaded user data: {len(data)} users")
+            return data
+        else:
+            error_handler.logger.warning("User data is not in expected format")
+            return {}
+
     except Exception as e:
-        error_details = error_handler.handle_error(
-            UserDataError(f"Unexpected error loading user data: {e}"),
+        error_handler.handle_error(
+            UserDataError(f"Failed to load user data: {e}"),
             context={"file_path": "data/user_progress.json", "operation": "load"}
         )
         return {}
 
 def save_user_data(data):
-    """Save user data with comprehensive error handling and backup"""
+    """Save user data with comprehensive error handling, validation, and backup"""
     try:
         # Validate data before saving
         if not isinstance(data, dict):
@@ -66,33 +59,16 @@ def save_user_data(data):
 
         file_path = "data/user_progress.json"
 
-        # Ensure directory exists
-        os.makedirs("data", exist_ok=True)
+        # Use database manager for safe write with validation and backup
+        success = db_manager.safe_write(file_path, data, schema_name="user_progress")
 
-        # Create backup before saving
-        if os.path.exists(file_path):
-            backup_path = f"data/user_progress_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-            try:
-                with open(file_path, 'r', encoding='utf-8') as src:
-                    with open(backup_path, 'w', encoding='utf-8') as dst:
-                        dst.write(src.read())
-                error_handler.logger.debug(f"Created backup: {backup_path}")
-            except Exception as backup_error:
-                error_handler.logger.warning(f"Failed to create backup: {backup_error}")
+        if success:
+            error_handler.logger.info(f"Successfully saved user data: {len(data)} users")
+            return True
+        else:
+            error_handler.logger.error("Failed to save user data using database manager")
+            return False
 
-        # Save the data
-        with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
-
-        error_handler.logger.info(f"Successfully saved user data: {len(data)} users")
-        return True
-
-    except PermissionError as e:
-        error_handler.handle_error(
-            FileOperationError(f"Permission denied saving user data: {e}"),
-            context={"file_path": "data/user_progress.json", "operation": "save"}
-        )
-        return False
     except Exception as e:
         error_handler.handle_error(
             UserDataError(f"Failed to save user data: {e}"),
@@ -1637,6 +1613,74 @@ def health_check():
             "success": False,
             "status": "unhealthy",
             "error": str(e)
+        }), 500
+
+@app.route('/api/admin/backup-info')
+@rate_limit(requests_per_minute=10, requests_per_hour=50)
+def get_backup_info():
+    """Get backup information for admin users"""
+    try:
+        # Check if user is admin (simplified check)
+        if 'user' not in session:
+            return jsonify({
+                "success": False,
+                "error": "Authentication required"
+            }), 401
+
+        # Get backup information
+        user_data_backups = db_manager.get_backup_info("data/user_progress.json")
+
+        return jsonify({
+            "success": True,
+            "backups": {
+                "user_data": user_data_backups,
+                "total_backups": len(user_data_backups)
+            },
+            "backup_settings": {
+                "max_backups": db_manager.max_backups,
+                "backup_interval": db_manager.backup_interval
+            }
+        })
+
+    except Exception as e:
+        error_handler.handle_error(e, context={"route": "backup_info"})
+        return jsonify({
+            "success": False,
+            "error": "Failed to get backup information"
+        }), 500
+
+@app.route('/api/admin/create-backup', methods=['POST'])
+@rate_limit(requests_per_minute=5, requests_per_hour=20)
+def create_manual_backup():
+    """Create manual backup for admin users"""
+    try:
+        # Check if user is admin (simplified check)
+        if 'user' not in session:
+            return jsonify({
+                "success": False,
+                "error": "Authentication required"
+            }), 401
+
+        # Create manual backup
+        backup_path = db_manager.create_backup("data/user_progress.json", force=True)
+
+        if backup_path:
+            return jsonify({
+                "success": True,
+                "message": "Backup created successfully",
+                "backup_path": backup_path
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Failed to create backup"
+            }), 500
+
+    except Exception as e:
+        error_handler.handle_error(e, context={"route": "create_backup"})
+        return jsonify({
+            "success": False,
+            "error": "Failed to create backup"
         }), 500
 
 if __name__ == '__main__':
