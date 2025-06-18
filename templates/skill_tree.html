@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block title %}🌳 Skill Tree - Python Learning{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-green-50 dark:from-gray-900 dark:via-purple-900 dark:to-blue-900">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                🌳 Python Skill Tree
+            </h1>
+            <p class="text-xl text-gray-600 dark:text-gray-300 mb-6">
+                Track your progress through Python mastery
+            </p>
+            
+            <!-- XP and Level Display -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 max-w-md mx-auto">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">Level {{ skills.level }}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Current Level</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ skills.total_xp }}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Total XP</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ skills.next_level_xp }}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">XP to Next Level</div>
+                    </div>
+                </div>
+                
+                <!-- XP Progress Bar -->
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                    <div class="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-500" 
+                         style="width: {{ ((skills.total_xp % 100) / 100) * 100 }}%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Challenge -->
+        <div class="max-w-4xl mx-auto mb-8">
+            <div class="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl shadow-lg p-6 text-white">
+                <h2 class="text-2xl font-bold mb-4">🏆 Daily Challenge</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="md:col-span-2">
+                        <h3 class="text-xl font-semibold mb-2">{{ daily_challenge.title }}</h3>
+                        <p class="mb-4">{{ daily_challenge.description }}</p>
+                        <div class="flex items-center space-x-4">
+                            <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm">
+                                {{ daily_challenge.difficulty }}
+                            </span>
+                            <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm">
+                                +{{ daily_challenge.xp_reward }} XP
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <button id="startDailyChallenge" class="bg-white text-orange-500 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors">
+                            Start Challenge
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skill Tree -->
+        <div class="max-w-6xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for skill_id, skill in skills.skills.items() %}
+                <div class="skill-node bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl
+                           {% if skill.is_completed %}border-2 border-green-500{% elif skill.is_unlocked %}border-2 border-blue-500{% else %}opacity-50{% endif %}">
+                    
+                    <!-- Skill Header -->
+                    <div class="text-center mb-4">
+                        <div class="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center text-2xl
+                                   {% if skill.is_completed %}bg-green-500 text-white{% elif skill.is_unlocked %}bg-{{ skill.color }}-500 text-white{% else %}bg-gray-300 text-gray-600{% endif %}">
+                            <i class="{{ skill.icon }}"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ skill.name }}</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            {{ skill.completed }}/{{ skill.total }} lessons completed
+                        </p>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="mb-4">
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="bg-{{ skill.color }}-500 h-2 rounded-full transition-all duration-500" 
+                                 style="width: {{ skill.progress }}%"></div>
+                        </div>
+                        <div class="text-center mt-2 text-sm text-gray-600 dark:text-gray-400">
+                            {{ "%.1f"|format(skill.progress) }}% Complete
+                        </div>
+                    </div>
+
+                    <!-- XP Reward -->
+                    <div class="text-center mb-4">
+                        <span class="bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-3 py-1 rounded-full text-sm">
+                            {% if skill.is_completed %}
+                                ✓ {{ skill.xp_reward }} XP Earned
+                            {% else %}
+                                {{ skill.xp_reward }} XP Reward
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <!-- Action Button -->
+                    <div class="text-center">
+                        {% if skill.is_completed %}
+                            <button class="bg-green-500 text-white px-4 py-2 rounded-lg font-medium cursor-default">
+                                <i class="fas fa-check mr-2"></i>Completed
+                            </button>
+                        {% elif skill.is_unlocked %}
+                            <a href="{{ url_for('lessons') }}" class="bg-{{ skill.color }}-500 hover:bg-{{ skill.color }}-600 text-white px-4 py-2 rounded-lg font-medium transition-colors inline-block">
+                                Continue Learning
+                            </a>
+                        {% else %}
+                            <button class="bg-gray-400 text-white px-4 py-2 rounded-lg font-medium cursor-not-allowed">
+                                <i class="fas fa-lock mr-2"></i>Locked
+                            </button>
+                        {% endif %}
+                    </div>
+
+                    <!-- Prerequisites -->
+                    {% if skill.prerequisites %}
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Prerequisites:</p>
+                        <div class="flex flex-wrap gap-1">
+                            {% for prereq in skill.prerequisites %}
+                            <span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded text-xs">
+                                {{ skills.skills[prereq].name }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Leaderboard Section -->
+        <div class="max-w-4xl mx-auto mt-12">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+                    🏆 XP Leaderboard
+                </h2>
+                <div id="leaderboard" class="space-y-3">
+                    <!-- Leaderboard will be loaded via JavaScript -->
+                    <div class="text-center text-gray-500 dark:text-gray-400">
+                        Loading leaderboard...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Daily Challenge Modal -->
+<div id="dailyChallengeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Daily Challenge</h3>
+                <button id="closeChallengeModal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <h4 class="font-semibold text-lg mb-2">{{ daily_challenge.title }}</h4>
+                <p class="text-gray-600 dark:text-gray-400 mb-4">{{ daily_challenge.description }}</p>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Your Solution:</label>
+                <textarea id="challengeCode" class="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-lg font-mono text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" placeholder="Write your Python code here..."></textarea>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button id="cancelChallenge" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                    Cancel
+                </button>
+                <button id="submitChallenge" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                    Submit Solution
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startChallengeBtn = document.getElementById('startDailyChallenge');
+    const challengeModal = document.getElementById('dailyChallengeModal');
+    const closeChallengeBtn = document.getElementById('closeChallengeModal');
+    const cancelChallengeBtn = document.getElementById('cancelChallenge');
+    const submitChallengeBtn = document.getElementById('submitChallenge');
+    const challengeCode = document.getElementById('challengeCode');
+
+    // Open daily challenge modal
+    startChallengeBtn.addEventListener('click', function() {
+        challengeModal.classList.remove('hidden');
+    });
+
+    // Close modal
+    function closeModal() {
+        challengeModal.classList.add('hidden');
+        challengeCode.value = '';
+    }
+
+    closeChallengeBtn.addEventListener('click', closeModal);
+    cancelChallengeBtn.addEventListener('click', closeModal);
+
+    // Submit challenge
+    submitChallengeBtn.addEventListener('click', function() {
+        const code = challengeCode.value.trim();
+        if (!code) {
+            alert('Please write some code for the challenge!');
+            return;
+        }
+
+        submitChallengeBtn.disabled = true;
+        submitChallengeBtn.textContent = 'Submitting...';
+
+        fetch('/api/complete_daily_challenge', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ code: code })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`${data.message}\nTotal XP: ${data.total_xp}\nLevel: ${data.new_level}`);
+                closeModal();
+                location.reload(); // Refresh to show updated XP
+            } else {
+                alert(data.error || 'Failed to submit challenge');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while submitting the challenge');
+        })
+        .finally(() => {
+            submitChallengeBtn.disabled = false;
+            submitChallengeBtn.textContent = 'Submit Solution';
+        });
+    });
+
+    // Load leaderboard
+    loadLeaderboard();
+});
+
+function loadLeaderboard() {
+    fetch('/api/xp_leaderboard')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayLeaderboard(data.leaderboard);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading leaderboard:', error);
+            document.getElementById('leaderboard').innerHTML = '<div class="text-center text-red-500">Failed to load leaderboard</div>';
+        });
+}
+
+function displayLeaderboard(leaderboard) {
+    const container = document.getElementById('leaderboard');
+    
+    if (leaderboard.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500">No data available</div>';
+        return;
+    }
+
+    const html = leaderboard.map((user, index) => `
+        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold">
+                    ${index + 1}
+                </div>
+                <div>
+                    <div class="font-medium text-gray-900 dark:text-white">${user.name}</div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">Level ${user.level}</div>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="font-bold text-purple-600 dark:text-purple-400">${user.xp} XP</div>
+            </div>
+        </div>
+    `).join('');
+
+    container.innerHTML = html;
+}
+</script>
+{% endblock %}
