@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Analytics - Python Learning Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .analytics-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .metric-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .recommendation-card {
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+        }
+        
+        .strength-tag {
+            background: #28a745;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin: 0.2rem;
+            display: inline-block;
+        }
+        
+        .weakness-tag {
+            background: #dc3545;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin: 0.2rem;
+            display: inline-block;
+        }
+        
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+        
+        .trend-up {
+            color: #28a745;
+        }
+        
+        .trend-down {
+            color: #dc3545;
+        }
+        
+        .trend-stable {
+            color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-code"></i> Python Learning Platform
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/dashboard">Dashboard</a>
+                <a class="nav-link" href="/lessons">Lessons</a>
+                <a class="nav-link" href="/challenges">Challenges</a>
+                <a class="nav-link active" href="/analytics">Analytics</a>
+                <a class="nav-link" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="analytics-card">
+            <h1><i class="fas fa-chart-line"></i> Learning Analytics Dashboard</h1>
+            <p>Track your progress, identify strengths and weaknesses, and get personalized recommendations.</p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading analytics...</span>
+            </div>
+        </div>
+
+        <!-- Analytics Content -->
+        <div id="analyticsContent" style="display: none;">
+            <!-- Key Metrics -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value" id="totalPoints">0</div>
+                        <div class="metric-label">Total Points</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value" id="currentLevel">1</div>
+                        <div class="metric-label">Current Level</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value" id="completionRate">0%</div>
+                        <div class="metric-label">Completion Rate</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value" id="currentStreak">0</div>
+                        <div class="metric-label">Current Streak</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Charts -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h4>Learning Progress</h4>
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h4>Activity Distribution</h4>
+                        <canvas id="activityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning Velocity -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="chart-container">
+                        <h4>Learning Velocity</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Items per Day:</strong> <span id="itemsPerDay">0</span></p>
+                                <p><strong>Mastery Rate:</strong> <span id="masteryRate">0%</span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Trend:</strong> 
+                                    <span id="progressTrend" class="trend-stable">
+                                        <i class="fas fa-minus"></i> Stable
+                                    </span>
+                                </p>
+                                <p><strong>Retention Rate:</strong> <span id="retentionRate">0%</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Strengths and Weaknesses -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h4><i class="fas fa-trophy text-success"></i> Strengths</h4>
+                        <div id="strengthsContainer">
+                            <p class="text-muted">Loading strengths...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h4><i class="fas fa-exclamation-triangle text-warning"></i> Areas for Improvement</h4>
+                        <div id="weaknessesContainer">
+                            <p class="text-muted">Loading improvement areas...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="chart-container">
+                <h4><i class="fas fa-lightbulb text-warning"></i> Personalized Recommendations</h4>
+                <div id="recommendationsContainer">
+                    <p class="text-muted">Loading recommendations...</p>
+                </div>
+            </div>
+
+            <!-- Personalized Learning Path -->
+            <div class="chart-container">
+                <h4><i class="fas fa-route text-primary"></i> Your Personalized Learning Path</h4>
+                <div id="learningPathContainer">
+                    <p class="text-muted">Loading learning path...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        class AnalyticsDashboard {
+            constructor() {
+                this.charts = {};
+                this.loadAnalytics();
+                this.loadLearningPath();
+            }
+
+            async loadAnalytics() {
+                try {
+                    const response = await fetch('/api/analytics');
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.displayAnalytics(data.analytics);
+                    } else {
+                        this.showError('Failed to load analytics: ' + data.error);
+                    }
+                } catch (error) {
+                    this.showError('Error loading analytics: ' + error.message);
+                }
+            }
+
+            async loadLearningPath() {
+                try {
+                    const response = await fetch('/api/learning-path');
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.displayLearningPath(data.learning_path);
+                    } else {
+                        console.error('Failed to load learning path:', data.error);
+                    }
+                } catch (error) {
+                    console.error('Error loading learning path:', error);
+                }
+            }
+
+            displayAnalytics(analytics) {
+                // Hide loading state
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('analyticsContent').style.display = 'block';
+
+                // Update key metrics
+                document.getElementById('totalPoints').textContent = analytics.total_points || 0;
+                document.getElementById('currentLevel').textContent = analytics.current_level || 1;
+                document.getElementById('currentStreak').textContent = analytics.current_streak || 0;
+
+                // Calculate completion rate
+                const totalCompleted = (analytics.lessons_completed || 0) + 
+                                     (analytics.challenges_completed || 0) + 
+                                     (analytics.quizzes_completed || 0);
+                const completionRate = Math.round((totalCompleted / 100) * 100); // Simplified
+                document.getElementById('completionRate').textContent = completionRate + '%';
+
+                // Update learning velocity
+                if (analytics.learning_velocity) {
+                    document.getElementById('itemsPerDay').textContent = 
+                        (analytics.learning_velocity.items_per_day || 0).toFixed(1);
+                    document.getElementById('masteryRate').textContent = 
+                        Math.round((analytics.learning_velocity.mastery_rate || 0) * 100) + '%';
+                }
+
+                // Update trends
+                if (analytics.trends) {
+                    this.displayTrend(analytics.trends.trend);
+                }
+
+                // Update retention
+                if (analytics.retention) {
+                    document.getElementById('retentionRate').textContent = 
+                        Math.round((analytics.retention.retention_rate || 0) * 100) + '%';
+                }
+
+                // Display strengths and weaknesses
+                this.displayStrengthsWeaknesses(analytics.strengths, analytics.weaknesses);
+
+                // Display recommendations
+                this.displayRecommendations(analytics.recommendations);
+
+                // Create charts
+                this.createCharts(analytics);
+            }
+
+            displayTrend(trend) {
+                const trendElement = document.getElementById('progressTrend');
+                trendElement.className = 'trend-' + trend;
+                
+                let icon, text;
+                switch (trend) {
+                    case 'improving':
+                        icon = 'fa-arrow-up';
+                        text = 'Improving';
+                        break;
+                    case 'declining':
+                        icon = 'fa-arrow-down';
+                        text = 'Declining';
+                        break;
+                    default:
+                        icon = 'fa-minus';
+                        text = 'Stable';
+                }
+                
+                trendElement.innerHTML = `<i class="fas ${icon}"></i> ${text}`;
+            }
+
+            displayStrengthsWeaknesses(strengths, weaknesses) {
+                const strengthsContainer = document.getElementById('strengthsContainer');
+                const weaknessesContainer = document.getElementById('weaknessesContainer');
+
+                if (strengths && strengths.length > 0) {
+                    strengthsContainer.innerHTML = strengths.map(strength => 
+                        `<span class="strength-tag">${strength}</span>`
+                    ).join('');
+                } else {
+                    strengthsContainer.innerHTML = '<p class="text-muted">Complete more activities to identify strengths</p>';
+                }
+
+                if (weaknesses && weaknesses.length > 0) {
+                    weaknessesContainer.innerHTML = weaknesses.map(weakness => 
+                        `<span class="weakness-tag">${weakness}</span>`
+                    ).join('');
+                } else {
+                    weaknessesContainer.innerHTML = '<p class="text-muted">No specific areas for improvement identified</p>';
+                }
+            }
+
+            displayRecommendations(recommendations) {
+                const container = document.getElementById('recommendationsContainer');
+                
+                if (recommendations && recommendations.length > 0) {
+                    container.innerHTML = recommendations.map(rec => 
+                        `<div class="recommendation-card">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                            ${rec}
+                        </div>`
+                    ).join('');
+                } else {
+                    container.innerHTML = '<p class="text-muted">Keep learning to get personalized recommendations!</p>';
+                }
+            }
+
+            displayLearningPath(learningPath) {
+                const container = document.getElementById('learningPathContainer');
+                
+                if (learningPath && learningPath.length > 0) {
+                    container.innerHTML = learningPath.map((item, index) => 
+                        `<div class="card mb-2">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="card-title mb-1">${index + 1}. ${item.title}</h6>
+                                        <p class="card-text text-muted small mb-0">${item.description}</p>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-primary">${item.difficulty}</span>
+                                        <br>
+                                        <small class="text-muted">${item.estimated_time} min</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`
+                    ).join('');
+                } else {
+                    container.innerHTML = '<p class="text-muted">Complete your profile to get a personalized learning path!</p>';
+                }
+            }
+
+            createCharts(analytics) {
+                // Progress Chart
+                const progressCtx = document.getElementById('progressChart').getContext('2d');
+                this.charts.progress = new Chart(progressCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Lessons', 'Challenges', 'Quizzes'],
+                        datasets: [{
+                            data: [
+                                analytics.lessons_completed || 0,
+                                analytics.challenges_completed || 0,
+                                analytics.quizzes_completed || 0
+                            ],
+                            backgroundColor: ['#667eea', '#764ba2', '#f093fb']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+
+                // Activity Chart
+                const activityCtx = document.getElementById('activityChart').getContext('2d');
+                this.charts.activity = new Chart(activityCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['This Week', 'Last Week', '2 Weeks Ago', '3 Weeks Ago'],
+                        datasets: [{
+                            label: 'Activities Completed',
+                            data: [12, 8, 15, 6], // Mock data
+                            backgroundColor: '#667eea'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            showError(message) {
+                document.getElementById('loadingState').innerHTML = 
+                    `<div class="alert alert-danger">${message}</div>`;
+            }
+        }
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new AnalyticsDashboard();
+        });
+    </script>
+</body>
+</html>

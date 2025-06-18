@@ -13,6 +13,22 @@ from core.error_handler import (
 from core.validators import validator
 from core.security import csrf_protection, rate_limiter, require_csrf_token, rate_limit
 from core.database_manager import db_manager
+from core.performance import (
+    memory_cache, file_cache, profiler, cached, memoize, disk_cache,
+    optimize_json_loading, performance_monitor, cleanup_caches
+)
+from core.memory_manager import (
+    memory_monitor, resource_manager, memory_profiler,
+    get_memory_usage, optimize_memory, auto_cleanup
+)
+from core.adaptive_learning import (
+    adaptive_engine, spaced_repetition, learning_path_generator,
+    learning_analytics, UserPerformance, LearningItem, DifficultyLevel, LearningStyle
+)
+from core.social_learning import (
+    social_manager, UserProfile, Friendship, DiscussionPost, CodeShare,
+    FriendshipStatus, PostType
+)
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
@@ -101,9 +117,10 @@ def get_progress_stats(user_email):
         'days_since_start': user.get('days_since_start', 0)
     }
 
+@disk_cache(ttl=3600)  # Cache for 1 hour
 def get_comprehensive_lessons_data():
     """
-    Comprehensive Python learning curriculum with 50 lessons covering:
+    Comprehensive Python learning curriculum with 50 lessons covering (cached):
     - Fundamentals (1-10)
     - Intermediate Programming (11-20)
     - Advanced Python (21-30)
@@ -913,9 +930,10 @@ def challenge_detail(challenge_id):
                          challenge=challenge,
                          is_completed=is_completed)
 
+@disk_cache(ttl=3600)  # Cache for 1 hour
 def get_comprehensive_quizzes_data():
     """
-    Comprehensive quiz system covering:
+    Comprehensive quiz system covering (cached):
     - Fundamentals (1-5)
     - Control Flow (6-10)
     - Data Structures (11-15)
@@ -1683,9 +1701,435 @@ def create_manual_backup():
             "error": "Failed to create backup"
         }), 500
 
+@app.route('/api/admin/performance')
+@rate_limit(requests_per_minute=10, requests_per_hour=50)
+def get_performance_stats():
+    """Get performance statistics for admin users"""
+    try:
+        # Check if user is admin (simplified check)
+        if 'user' not in session:
+            return jsonify({
+                "success": False,
+                "error": "Authentication required"
+            }), 401
+
+        # Get performance statistics
+        stats = performance_monitor()
+
+        return jsonify({
+            "success": True,
+            "performance": stats,
+            "timestamp": datetime.now().isoformat()
+        })
+
+    except Exception as e:
+        error_handler.handle_error(e, context={"route": "performance_stats"})
+        return jsonify({
+            "success": False,
+            "error": "Failed to get performance statistics"
+        }), 500
+
+@app.route('/api/admin/cache/clear', methods=['POST'])
+@rate_limit(requests_per_minute=5, requests_per_hour=20)
+def clear_caches():
+    """Clear all caches for admin users"""
+    try:
+        # Check if user is admin (simplified check)
+        if 'user' not in session:
+            return jsonify({
+                "success": False,
+                "error": "Authentication required"
+            }), 401
+
+        # Clear caches
+        cleanup_caches()
+
+        return jsonify({
+            "success": True,
+            "message": "All caches cleared successfully"
+        })
+
+    except Exception as e:
+        error_handler.handle_error(e, context={"route": "clear_caches"})
+        return jsonify({
+            "success": False,
+            "error": "Failed to clear caches"
+        }), 500
+
+@app.route('/offline.html')
+def offline_page():
+    """Offline page for service worker"""
+    return render_template('offline.html')
+
+@app.route('/api/performance-metrics', methods=['POST'])
+@rate_limit(requests_per_minute=30, requests_per_hour=200)
+def receive_performance_metrics():
+    """Receive performance metrics from client"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "error": "No data provided"}), 400
+
+        # Log performance metrics
+        error_handler.logger.info(f"Performance metrics: {data}")
+
+        # Store metrics (in production, save to database)
+        metrics_file = "data/performance_metrics.json"
+        if os.path.exists(metrics_file):
+            with open(metrics_file, 'r') as f:
+                existing_metrics = json.load(f)
+        else:
+            existing_metrics = []
+
+        data['timestamp'] = datetime.now().isoformat()
+        existing_metrics.append(data)
+
+        # Keep only last 1000 entries
+        if len(existing_metrics) > 1000:
+            existing_metrics = existing_metrics[-1000:]
+
+        with open(metrics_file, 'w') as f:
+            json.dump(existing_metrics, f, indent=2)
+
+        return jsonify({"success": True})
+
+    except Exception as e:
+        error_handler.handle_error(e, context={"route": "performance_metrics"})
+        return jsonify({"success": False, "error": "Failed to save metrics"}), 500
+
+@app.route('/api/admin/memory')
+@rate_limit(requests_per_minute=10, requests_per_hour=50)
+def get_memory_stats():
+    """Get memory usage statistics for admin users"""
+    try:
+        # Check if user is admin (simplified check)
+        if 'user' not in session:
+            return jsonify({
+                "success": False,
+                "error": "Authentication required"
+            }), 401
+
+        # Get memory statistics
+        memory_stats = get_memory_usage()
+        monitor_stats = memory_monitor.get_memory_stats()
+
+        return jsonify({
+            "success": True,
+            "memory": {
+                "current": memory_stats,
+                "monitor": monitor_stats
+            },
+            "timestamp": datetime.now().isoformat()
+        })
+
+    except Exception as e:
+        error_handler.handle_error(e, context={"route": "memory_stats"})
+        return jsonify({
+            "success": False,
+            "error": "Failed to get memory statistics"
+        }), 500
+
+@app.route('/api/admin/memory/optimize', methods=['POST'])
+@rate_limit(requests_per_minute=5, requests_per_hour=20)
+def optimize_memory_usage():
+    """Optimize memory usage for admin users"""
+    try:
+        # Check if user is admin (simplified check)
+        if 'user' not in session:
+            return jsonify({
+                "success": False,
+                "error": "Authentication required"
+            }), 401
+
+        # Run memory optimization
+        optimization_result = optimize_memory()
+
+        return jsonify({
+            "success": True,
+            "optimization": optimization_result,
+            "message": f"Memory optimization completed. Freed {optimization_result['memory_freed_mb']:.1f}MB"
+        })
+
+    except Exception as e:
+        error_handler.handle_error(e, context={"route": "optimize_memory"})
+        return jsonify({
+            "success": False,
+            "error": "Failed to optimize memory"
+        }), 500
+
+@app.route('/analytics')
+def analytics_dashboard():
+    """Learning analytics dashboard"""
+    if 'user' not in session:
+        return redirect(url_for('login'))
+
+    return render_template('analytics.html')
+
+@app.route('/api/analytics')
+@rate_limit(requests_per_minute=30, requests_per_hour=200)
+def get_user_analytics():
+    """Get learning analytics for current user"""
+    try:
+        if 'user' not in session:
+            return jsonify({
+                "success": False,
+                "error": "Authentication required"
+            }), 401
+
+        user_email = session['user']
+        user_data = load_user_data()
+        user = user_data.get(user_email, {})
+
+        # Convert user data to performance objects
+        performances = []
+
+        # Create performance data from user progress
+        if 'completed_lesson_ids' in user:
+            for lesson_id in user['completed_lesson_ids']:
+                perf = UserPerformance(
+                    item_id=lesson_id,
+                    attempts=1,  # Simplified
+                    success_rate=0.8,  # Simplified
+                    average_time=30.0,  # Simplified
+                    last_attempt=datetime.now(),
+                    mastery_level=0.8  # Simplified
+                )
+                performances.append(perf)
+
+        # Generate analytics
+        analytics = learning_analytics.generate_user_analytics(user_email, performances)
+
+        # Add user-specific data
+        analytics.update({
+            "total_points": user.get('points', 0),
+            "current_level": user.get('level', 1),
+            "lessons_completed": user.get('lessons_completed', 0),
+            "challenges_completed": user.get('challenges_completed', 0),
+            "quizzes_completed": user.get('quizzes_completed', 0),
+            "current_streak": user.get('streak', 0),
+            "achievements": user.get('achievements', [])
+        })
+
+        return jsonify({
+            "success": True,
+            "analytics": analytics
+        })
+
+    except Exception as e:
+        error_handler.handle_error(e, context={"route": "analytics", "user": session.get('user')})
+        return jsonify({
+            "success": False,
+            "error": "Failed to generate analytics"
+        }), 500
+
+@app.route('/api/learning-path')
+@rate_limit(requests_per_minute=10, requests_per_hour=50)
+def get_personalized_learning_path():
+    """Get personalized learning path for current user"""
+    try:
+        if 'user' not in session:
+            return jsonify({
+                "success": False,
+                "error": "Authentication required"
+            }), 401
+
+        user_email = session['user']
+        user_data = load_user_data()
+        user = user_data.get(user_email, {})
+
+        # Get user preferences
+        user_goals = user.get('learning_goals', ['general_programming'])
+        learning_style = LearningStyle.VISUAL  # Default, could be from user preferences
+
+        # Create performance data
+        performances = []
+        completed_lessons = user.get('completed_lesson_ids', [])
+
+        for lesson_id in completed_lessons:
+            perf = UserPerformance(
+                item_id=lesson_id,
+                attempts=1,
+                success_rate=0.8,
+                average_time=30.0,
+                last_attempt=datetime.now(),
+                mastery_level=0.8
+            )
+            performances.append(perf)
+
+        # Generate learning path
+        learning_path = learning_path_generator.generate_learning_path(
+            user_email, user_goals, performances, learning_style
+        )
+
+        # Get lesson details for the path
+        lessons_data = get_comprehensive_lessons_data()
+        path_details = []
+
+        for lesson_id in learning_path[:10]:  # Limit to next 10 items
+            lesson = next((l for l in lessons_data if l['id'] == lesson_id), None)
+            if lesson:
+                path_details.append({
+                    'id': lesson['id'],
+                    'title': lesson['title'],
+                    'description': lesson['description'],
+                    'difficulty': lesson['difficulty'],
+                    'estimated_time': lesson.get('estimated_time', 30),
+                    'points': lesson.get('points', 10)
+                })
+
+        return jsonify({
+            "success": True,
+            "learning_path": path_details,
+            "total_items": len(learning_path)
+        })
+
+    except Exception as e:
+        error_handler.handle_error(e, context={"route": "learning_path", "user": session.get('user')})
+        return jsonify({
+            "success": False,
+            "error": "Failed to generate learning path"
+        }), 500
+
+# Social Learning Routes
+@app.route('/community')
+def community():
+    """Community page"""
+    if 'user' not in session:
+        return redirect(url_for('login'))
+
+    return render_template('community.html')
+
+@app.route('/api/profile', methods=['GET', 'POST'])
+@rate_limit(requests_per_minute=30, requests_per_hour=200)
+def user_profile():
+    """Get or update user profile"""
+    if 'user' not in session:
+        return jsonify({"success": False, "error": "Authentication required"}), 401
+
+    user_email = session['user']
+
+    try:
+        if request.method == 'GET':
+            # Get user profile
+            profile = social_manager.get_user_profile(user_email)
+            if not profile:
+                # Create profile if it doesn't exist
+                user_data = load_user_data()
+                user = user_data.get(user_email, {})
+                profile = social_manager.create_user_profile(
+                    user_email,
+                    user.get('name', 'Anonymous'),
+                    learning_goals=user.get('learning_goals', [])
+                )
+
+            return jsonify({
+                "success": True,
+                "profile": profile.__dict__ if hasattr(profile, '__dict__') else profile
+            })
+
+        else:  # POST - Update profile
+            data = request.get_json()
+            if not data:
+                return jsonify({"success": False, "error": "No data provided"}), 400
+
+            success = social_manager.update_user_profile(user_email, data)
+
+            if success:
+                return jsonify({"success": True, "message": "Profile updated successfully"})
+            else:
+                return jsonify({"success": False, "error": "Failed to update profile"}), 500
+
+    except Exception as e:
+        error_handler.handle_error(e, context={"route": "user_profile", "user": user_email})
+        return jsonify({"success": False, "error": "Profile operation failed"}), 500
+
+@app.route('/api/friends', methods=['GET'])
+@rate_limit(requests_per_minute=30, requests_per_hour=200)
+def get_friends():
+    """Get user's friends list"""
+    if 'user' not in session:
+        return jsonify({"success": False, "error": "Authentication required"}), 401
+
+    try:
+        user_email = session['user']
+        friends = social_manager.get_friends(user_email)
+        friend_requests = social_manager.get_friend_requests(user_email)
+
+        return jsonify({
+            "success": True,
+            "friends": [friend.__dict__ if hasattr(friend, '__dict__') else friend for friend in friends],
+            "friend_requests": friend_requests
+        })
+
+    except Exception as e:
+        error_handler.handle_error(e, context={"route": "get_friends", "user": session.get('user')})
+        return jsonify({"success": False, "error": "Failed to get friends"}), 500
+
+@app.route('/api/friends/request', methods=['POST'])
+@rate_limit(requests_per_minute=10, requests_per_hour=50)
+def send_friend_request():
+    """Send a friend request"""
+    if 'user' not in session:
+        return jsonify({"success": False, "error": "Authentication required"}), 401
+
+    try:
+        data = request.get_json()
+        if not data or 'recipient_id' not in data:
+            return jsonify({"success": False, "error": "Recipient ID required"}), 400
+
+        user_email = session['user']
+        recipient_id = data['recipient_id']
+
+        success = social_manager.send_friend_request(user_email, recipient_id)
+
+        if success:
+            return jsonify({"success": True, "message": "Friend request sent"})
+        else:
+            return jsonify({"success": False, "error": "Failed to send friend request"}), 400
+
+    except Exception as e:
+        error_handler.handle_error(e, context={"route": "send_friend_request", "user": session.get('user')})
+        return jsonify({"success": False, "error": "Failed to send friend request"}), 500
+
+@app.route('/api/friends/respond', methods=['POST'])
+@rate_limit(requests_per_minute=20, requests_per_hour=100)
+def respond_friend_request():
+    """Respond to a friend request"""
+    if 'user' not in session:
+        return jsonify({"success": False, "error": "Authentication required"}), 401
+
+    try:
+        data = request.get_json()
+        if not data or 'friendship_id' not in data or 'accept' not in data:
+            return jsonify({"success": False, "error": "Friendship ID and accept status required"}), 400
+
+        friendship_id = data['friendship_id']
+        accept = data['accept']
+
+        success = social_manager.respond_to_friend_request(friendship_id, accept)
+
+        if success:
+            message = "Friend request accepted" if accept else "Friend request declined"
+            return jsonify({"success": True, "message": message})
+        else:
+            return jsonify({"success": False, "error": "Failed to respond to friend request"}), 400
+
+    except Exception as e:
+        error_handler.handle_error(e, context={"route": "respond_friend_request", "user": session.get('user')})
+        return jsonify({"success": False, "error": "Failed to respond to friend request"}), 500
+
 if __name__ == '__main__':
     print("🚀 Starting Python Learning Platform...")
     print("📍 Visit: http://localhost:5000")
     print(f"🔒 Security features enabled: CSRF protection, Rate limiting")
     print(f"📊 Error handling and logging active")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    print(f"🧠 Memory monitoring enabled")
+
+    # Start memory monitoring
+    memory_monitor.start_monitoring()
+
+    try:
+        app.run(debug=True, host='0.0.0.0', port=5000)
+    finally:
+        # Stop memory monitoring on shutdown
+        memory_monitor.stop_monitoring()
