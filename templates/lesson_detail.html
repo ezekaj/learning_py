@@ -56,7 +56,7 @@
             </div>
             <div class="flex items-center">
                 <i class="fas fa-star mr-2"></i>
-                <span>{{ lesson.points_reward }} points</span>
+                <span>{{ lesson.points }} points</span>
             </div>
             {% if lesson.exercises %}
             <div class="flex items-center">
@@ -68,14 +68,13 @@
     </div>
     
     <!-- Learning Objectives -->
-    {% set objectives = lesson.get_objectives() %}
-    {% if objectives %}
+    {% if lesson.objectives %}
     <div class="bg-blue-50 dark:bg-blue-900 rounded-xl p-6 mb-8 animate-slide-up">
         <h2 class="text-lg font-bold text-blue-900 dark:text-blue-100 mb-4">
             🎯 Learning Objectives
         </h2>
         <ul class="space-y-2">
-            {% for objective in objectives %}
+            {% for objective in lesson.objectives %}
             <li class="flex items-start text-blue-800 dark:text-blue-200">
                 <i class="fas fa-check-circle text-blue-600 dark:text-blue-400 mr-3 mt-1"></i>
                 <span>{{ objective }}</span>
@@ -86,30 +85,29 @@
     {% endif %}
     
     <!-- Lesson Content -->
-    {% set content = lesson.get_content() %}
-    {% if content %}
+    {% if lesson.content %}
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-8 animate-slide-up">
         <!-- Introduction -->
-        {% if content.introduction %}
+        {% if lesson.content.introduction %}
         <div class="mb-8">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                 📖 Introduction
             </h2>
             <div class="prose dark:prose-invert max-w-none">
-                {{ content.introduction|replace('\n', '<br>')|safe }}
+                {{ lesson.content.introduction|replace('\n', '<br>')|safe }}
             </div>
         </div>
         {% endif %}
-        
+
         <!-- Concepts -->
-        {% if content.concepts %}
+        {% if lesson.content.concepts %}
         <div class="mb-8">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                 💡 Key Concepts
             </h2>
             
             <div class="space-y-8">
-                {% for concept in content.concepts %}
+                {% for concept in lesson.content.concepts %}
                 <div class="border-l-4 border-blue-500 pl-6">
                     <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
                         {{ loop.index }}. {{ concept.title }}
